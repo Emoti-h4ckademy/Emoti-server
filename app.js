@@ -1,15 +1,33 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var express       = require('express');
+var path          = require('path');
+//var favicon       = require('serve-favicon');
+var logger        = require('morgan');
+var cookieParser  = require('cookie-parser');
+var bodyParser    = require('body-parser');
+var mongoose      = require('mongoose');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var images = require('./routes/api/images');
+
+
 
 var app = express();
+
+// Connection to DB
+mongoose.connect('mongodb://localhost/emoti', function(err, res) {
+  if(err) throw err;
+  console.log('Connected to Database');
+});
+
+
+
+// Middlewares
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+//app.use(methodOverride());
+
+// Import Models and controllers
+console.log("Before registering model");
+var modelImages     = require('./models/image')(app, mongoose);
+//var ImageCtrl = require('./controllers/images');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -27,7 +45,12 @@ app.use(require('node-sass-middleware')({
   indentedSyntax: true,
   sourceMap: true
 }));
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+var routes = require('./routes/index');
+var users = require('./routes/users');
+var images = require('./routes/api/images');
 
 app.use('/', routes);
 app.use('/users', users);
