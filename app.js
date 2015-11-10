@@ -47,7 +47,6 @@ var users = require('./routes/users');
 var images = require('./routes/api/images');
 
 app.use('/', routes);
-app.use('/users', users);
 app.use('/api/images/', images);
 
 // catch 404 and forward to error handler
