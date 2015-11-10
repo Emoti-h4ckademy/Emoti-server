@@ -1,25 +1,6 @@
 <h1>We are in images view</h1>
 {{#each myimages}}
-    <h2>Una imagen</h2>
     <p>{{ip}}</p>
-    <p>{{image}}</p>
-    <br>
-{{/each}}
-
-{{#each images}}
-    <h2>Una imagen</h2>
-    <div>{{images.ip}}</div>
-    <br>
-{{/each}}
-
-{{#each Image}}
-    <h2>Una imagen</h2>
-    <div>{{Image.ip}}</div>
-    <br>
-{{/each}}
-
-{{#each image}}
-    <h2>Una imagen</h2>
-    <div>{{image.ip}}</div>
+    <p><img src="data:image/png; base64,{{image}}" /></p>
     <br>
 {{/each}}
