@@ -43,7 +43,6 @@ app.use(require('node-sass-middleware')({
 app.use(express.static(path.join(__dirname, 'public')));
 
 var routes = require('./routes/index');
-var users = require('./routes/users');
 var images = require('./routes/api/images');
 
 app.use('/', routes);
