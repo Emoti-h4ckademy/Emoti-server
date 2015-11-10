@@ -13,12 +13,17 @@ exports.findAllImages = function(req, res) {
     });
 };
 
-exports.returnAllImages = function() {
+exports.returnAllImages = function(callback) {
     Image.find(function(err, images) {
        // if(err) res.send(500, err.message);
 
-        //console.log('GET /images')
-        return images;
+        console.log('returnAllImages');
+        console.log(images);
+
+        if (err) {
+            throw Error;
+        }
+        callback( null, images);
     });
 };
 

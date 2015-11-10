@@ -6,6 +6,7 @@ var cookieParser  = require('cookie-parser');
 var bodyParser    = require('body-parser');
 var mongoose      = require('mongoose');
 var utils         = require('./lib/utils.js');
+var exphbs        = require('express-handlebars');
 
 var app = express();
 
@@ -23,8 +24,24 @@ app.use(bodyParser.json());
 //app.use(methodOverride());
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
+var hbs = exphbs.create({
+  // Specify helpers which are only registered on this instance.
+  helpers: {
+    base64decode: function(base64str) {
+      return new Buffer(base64str, 'base64');
+    }
+  }
+});
+
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'hbs');
+
+app.set('views', path.join(__dirname, 'views'));
+//app.set('view engine', 'hbs');
+
+/*Handlebars.registerHelper('base64decode', function(base64str) {
+  return new Buffer(base64str, 'base64');
+});*/
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

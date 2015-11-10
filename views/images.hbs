@@ -1,6 +1,25 @@
 <h1>We are in images view</h1>
-{{#each Images}}
+{{#each myimages}}
     <h2>Una imagen</h2>
-    <div>{{Images.image}}</div>
+    <p>{{ip}}</p>
+    <p>{{image}}</p>
+    <br>
+{{/each}}
+
+{{#each images}}
+    <h2>Una imagen</h2>
+    <div>{{images.ip}}</div>
+    <br>
+{{/each}}
+
+{{#each Image}}
+    <h2>Una imagen</h2>
+    <div>{{Image.ip}}</div>
+    <br>
+{{/each}}
+
+{{#each image}}
+    <h2>Una imagen</h2>
+    <div>{{image.ip}}</div>
     <br>
 {{/each}}
