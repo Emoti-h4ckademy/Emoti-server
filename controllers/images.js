@@ -1,13 +1,28 @@
 /**
  * Created by Carlos on 6/11/15.
  */
-
-var mongoose = require('mongoose');
-var Image = mongoose.model('Image');
-
+var Image = require('mongoose').model('Image');
 
 //GET - Return all images in the DB
 exports.findAllImages = function(req, res) {
+    Image.find(function(err, images) {
+        if(err) res.send(500, err.message);
+
+        console.log('GET /images')
+        res.status(200).jsonp(images);
+    });
+};
+
+exports.returnAllImages = function() {
+    Image.find(function(err, images) {
+       // if(err) res.send(500, err.message);
+
+        //console.log('GET /images')
+        return images;
+    });
+};
+
+exports.findOneImage = function(req, res) {
     Image.find(function(err, images) {
         if(err) res.send(500, err.message);
 

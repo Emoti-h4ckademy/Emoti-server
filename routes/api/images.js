@@ -11,12 +11,20 @@ var ImageCtrl = require('../../controllers/images');
 
 router.get('/', function(req, res, next) {
     res.send('Beautiful images should be found here!');
+    next();
 });
+
+
 
 router.route('/prueba')
     .get(ImageCtrl.findAllImages)
     .post(ImageCtrl.addImage);
 
+
+
+
 //app.use('/api', router);
 
 module.exports = router;
+
+

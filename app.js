@@ -5,9 +5,7 @@ var logger        = require('morgan');
 var cookieParser  = require('cookie-parser');
 var bodyParser    = require('body-parser');
 var mongoose      = require('mongoose');
-
-
-
+var utils         = require('./lib/utils.js');
 
 var app = express();
 
@@ -17,17 +15,12 @@ mongoose.connect('mongodb://localhost/emoti', function(err, res) {
   console.log('Connected to Database');
 });
 
-
+utils.registerModels(app, mongoose);
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 //app.use(methodOverride());
-
-// Import Models and controllers
-console.log("Before registering model");
-var modelImages     = require('./models/image')(app, mongoose);
-//var ImageCtrl = require('./controllers/images');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -45,6 +38,7 @@ app.use(require('node-sass-middleware')({
   indentedSyntax: true,
   sourceMap: true
 }));
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
