@@ -5,6 +5,7 @@
 exports = module.exports = function(app, mongoose) {
 
     var ImageSchema = new mongoose.Schema({
+        username:   { type: String },
         ip: 		{ type: String },
         date:       { type: Date},
         image: 		{ type: Buffer }

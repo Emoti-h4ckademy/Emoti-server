@@ -1,7 +1,6 @@
-<h1>We are in images view</h1>
+<h1>Images stored in database</h1>
 {{#each myimages}}
-    <p>{{ip}}</p>
+    <h2>Username: {{username}}</h2>
     <p><img src="data:image/png; base64,{{image}}" /></p>
-    <p>{{base64decode image}}</p>
     <br>
 {{/each}}
