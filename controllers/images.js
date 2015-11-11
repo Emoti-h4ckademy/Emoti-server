@@ -15,15 +15,10 @@ exports.findAllImages = function(req, res) {
 
 exports.returnAllImages = function(callback) {
     Image.find(function(err, images) {
-       // if(err) res.send(500, err.message);
-
-        console.log('returnAllImages');
-        console.log(images);
-
-        if (err) {
+       /*if (err) {
             throw Error;
-        }
-        callback( null, images);
+       }*/
+        callback(err, images);
     });
 };
 
