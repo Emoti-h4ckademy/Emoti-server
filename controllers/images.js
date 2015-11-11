@@ -52,6 +52,9 @@ exports.addImage = function(req, res) {
     console.log('POST');
     console.log(req.body);
 
+    console.log("Client IP 1 : " + req.connection.remoteAddress);
+    console.log("Client IP 2 : " + req.ip);
+
     var image = new Image({
         ip:     req.connection.remoteAddress,
         date:   new Date(),

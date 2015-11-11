@@ -16,13 +16,13 @@ router.get('/template2', function(req, res) {
   ImageCtrl.returnAllImages(function(error, allImages){
     res.render('images',
         {
-          myimages : allImages,
+          myimages : allImages/*,
           helpers: {
               base64decode: function(base64str)
                             {
                               return new Buffer(base64str, 'base64');
                             }
-          }
+          }*/
     });
   });
 

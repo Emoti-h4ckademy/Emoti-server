@@ -2,5 +2,6 @@
 {{#each myimages}}
     <p>{{ip}}</p>
     <p><img src="data:image/png; base64,{{image}}" /></p>
+    <p>{{base64decode image}}</p>
     <br>
 {{/each}}

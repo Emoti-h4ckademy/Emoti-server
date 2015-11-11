@@ -10,6 +10,11 @@ var exphbs        = require('express-handlebars');
 
 var app = express();
 
+//app.enable('trust proxy');
+
+app.use(bodyParser.json({limit: '2mb'}));
+app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
+
 // Connection to DB
 mongoose.connect('mongodb://localhost/emoti', function(err, res) {
   if(err) throw err;
@@ -28,12 +33,26 @@ var hbs = exphbs.create({
   // Specify helpers which are only registered on this instance.
   helpers: {
     base64decode: function(base64str) {
-      return new Buffer(base64str, 'base64');
+      var bitmap = new Buffer(base64str, 'base64');
+      //return new Buffer(base64str, 'base64');
+      return bitmap;
+    },
+    debug: function(value){
+      console.log("Current Context");
+      console.log("======================");
+      console.log(this);
+
+      if(value) {
+        console.log("Value");
+        console.log("======================");
+        console.log(value);
+      }
+
     }
   }
 });
 
-app.engine('handlebars', hbs.engine);
+app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
 app.set('views', path.join(__dirname, 'views'));
