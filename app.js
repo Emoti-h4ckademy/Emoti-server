@@ -7,6 +7,8 @@ var bodyParser    = require('body-parser');
 var mongoose      = require('mongoose');
 var utils         = require('./lib/utils.js');
 var exphbs        = require('express-handlebars');
+var emoti         = require('./lib/emoti.js');
+
 
 var app = express();
 
@@ -22,6 +24,8 @@ mongoose.connect('mongodb://localhost/emoti', function(err, res) {
 });
 
 utils.registerModels(app, mongoose);
+
+var ImageCtrl     = require('./controllers/images.js');
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -83,6 +87,14 @@ var images = require('./routes/api/images');
 
 app.use('/', routes);
 app.use('/api/images/', images);
+
+
+var oneImage = ImageCtrl.returnOneImage(function(err, images) {
+  emoti.startEmotionDetect(images.image);
+  return images.image;
+});
+console.log("Image fetched from app: " + oneImage);
+emoti.startEmotionDetect(oneImage);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

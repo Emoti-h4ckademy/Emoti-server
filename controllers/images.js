@@ -22,8 +22,17 @@ exports.returnAllImages = function(callback) {
     });
 };
 
+exports.returnOneImage = function(callback) {
+    Image.findOne(function(err, images) {
+        /*if (err) {
+         throw Error;
+         }*/
+        callback(err, images);
+    });
+};
+
 exports.findOneImage = function(req, res) {
-    Image.find(function(err, images) {
+    Image.findOne(function(err, images) {
         if(err) res.send(500, err.message);
 
         console.log('GET /images')
