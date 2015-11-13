@@ -20,7 +20,7 @@ router.get('/show-images', function(req, res) {
                               return new Buffer(base64str, 'base64');
                             }
           }*/
-    });
+        });
   });
 
 });
