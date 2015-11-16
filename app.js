@@ -86,12 +86,16 @@ app.use('/', routes);
 app.use('/api/images/', images);
 
 
-var Image  = require('mongoose').model('Image');
+/*var Image  = require('mongoose').model('Image');
 Image.findOne(function (err, image) {
   if (err) throw err;
   if(!image) throw new Error("No image found in database");
   if (image.image) console.log("We must call Oxford API here!!");
-});
+});*/
+
+var open = require('open');
+//open("http://localhost:3000/show-images");
+utils.testOxfordAPI();
 
 
 // catch 404 and forward to error handler
