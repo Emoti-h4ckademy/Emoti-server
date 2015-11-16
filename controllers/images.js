@@ -68,7 +68,7 @@ exports.addImage = function(req, res) {
 
     image.save(function(err, image) {
         if(err) return res.send(500, err.message);
-        res.status(200);
+        res.status(200)
     });
 
     console.log('POST /images')

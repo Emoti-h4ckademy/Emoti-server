@@ -53,10 +53,11 @@ var hbs = exphbs.create({
   }
 });
 
-app.engine('hbs', hbs.engine);
-app.set('view engine', 'hbs');
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
 
 app.set('views', path.join(__dirname, 'views'));
+//app.set('view options', { layout: 'layout.hbs' });
 //app.set('view engine', 'hbs');
 
 /*Handlebars.registerHelper('base64decode', function(base64str) {
@@ -95,7 +96,7 @@ Image.findOne(function (err, image) {
 
 var open = require('open');
 //open("http://localhost:3000/show-images");
-utils.testOxfordAPI();
+//utils.testOxfordAPI();
 
 
 // catch 404 and forward to error handler

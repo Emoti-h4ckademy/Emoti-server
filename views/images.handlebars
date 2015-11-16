@@ -1,0 +1,14 @@
+<div class="page-header" id="banner">
+<div class="row"><h4>Images stored in database</h4></div>
+</div>
+{{#each myimages}}
+    <h5>Username: {{username}}</h5>
+    <div class="row">
+        <div class="col-md-4">
+            <img style="max-width: 98%;" src="data:image/png; base64,{{image}}"/>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-success" type="button">Detect Emotion</button>
+        </div>
+    </div>
+{{/each}}
