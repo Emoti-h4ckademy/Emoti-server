@@ -8,7 +8,7 @@ exports = module.exports = function(app, mongoose) {
         username:   { type: String },
         ip: 		{ type: String },
         date:       { type: Date},
-        image: 		{ type: Buffer }
+        image: 		{ type: String }
     });
 
     mongoose.model('Image', ImageSchema);
