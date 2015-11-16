@@ -25,8 +25,6 @@ mongoose.connect('mongodb://localhost/emoti', function(err, res) {
 
 utils.registerModels(app, mongoose);
 
-var ImageCtrl     = require('./controllers/images.js');
-
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -89,9 +87,13 @@ app.use('/', routes);
 app.use('/api/images/', images);
 
 
-ImageCtrl.returnOneImage(function(err, images) {
-  emoti.startEmotionDetect(images.image);
+var Image  = require('mongoose').model('Image');
+Image.findOne(function (err, image) {
+  if (err) throw err;
+  if(!image) throw new Error("No image found in database");
+  if (image.image) emoti.startEmotionDetect(image.image);
 });
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
