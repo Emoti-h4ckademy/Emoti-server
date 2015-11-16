@@ -95,7 +95,7 @@ Image.findOne(function (err, image) {
 });*/
 
 var open = require('open');
-open("http://localhost:3000/show-images");
+//open("http://localhost:3000/show-images");
 //utils.testOxfordAPI();
 
 
