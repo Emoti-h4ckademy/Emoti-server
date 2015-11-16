@@ -7,7 +7,6 @@ var bodyParser    = require('body-parser');
 var mongoose      = require('mongoose');
 var utils         = require('./lib/utils.js');
 var exphbs        = require('express-handlebars');
-var emoti         = require('./lib/emoti.js');
 
 
 var app = express();
@@ -91,7 +90,7 @@ var Image  = require('mongoose').model('Image');
 Image.findOne(function (err, image) {
   if (err) throw err;
   if(!image) throw new Error("No image found in database");
-  if (image.image) emoti.startEmotionDetect(image.image);
+  if (image.image) console.log("We must call Oxford API here!!");
 });
 
 
