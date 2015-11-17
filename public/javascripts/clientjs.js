@@ -14,7 +14,10 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(data){
                 console.log(data);
-                $('.ajax-response-box').html('<h2>' + data.emotion + '</h2>');
+                var responseContainer = $('.ajax-response-container');
+                var responseBox = $('.ajax-response-box');
+                responseContainer.html('<h2>' + data.emotion + '</h2>' +
+                    '<div style="max-width: 564px;"><p><pre>'+ JSON.stringify(data.oxfordResponse.scores, null, '') +'</pre></p></div>');
                 // Do some nice stuff here
             },
             error: function(xhr, type){

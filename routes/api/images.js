@@ -21,12 +21,11 @@ router.get('/', function(req, res, next) {
 
 router.route('/').post(ImageCtrl.addImage);
 
-// GET emotion for an image knowing its id
+// POST emotion for an image knowing its id
 router.post('/emotiondetect/:imageid', function(req, res, next) {
     try {
-        return TestUtils.detectEmotion(req.params.imageid, function (err, emotion) {
-            console.log("Emotion calculated:" + emotion);
-            return res.status(200).jsonp(emotion);
+        return TestUtils.detectEmotion(req.params.imageid, function (err, emotionObj) {
+            return res.status(200).jsonp(emotionObj);
         });
     } catch (error){
         console.log("image.js: " + error);
