@@ -9,7 +9,8 @@ var utils         = require('./lib/utils.js');
 var exphbs        = require('express-handlebars');
 
 
-var app = express();
+var app = express(),
+    dev = app.get('env') === 'development';
 
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
@@ -62,7 +63,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+app.use(logger(dev ? 'dev' : {
+  stream: require('fs').createWriteStream('log')
+}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -99,7 +102,7 @@ app.use(function(req, res, next) {
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
+if (dev) {
   app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
