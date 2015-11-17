@@ -18,25 +18,10 @@ $(document).ready(function() {
                 // Do some nice stuff here
             },
             error: function(xhr, type){
-                alert('Y U NO WORK?')
+                alert('AJAX response returned and error');
             }
         })
 
 
     });
-
-    /*.ajax({
-        type: 'POST',
-        url: '/project',
-        data: { imageid: 'Super Volcano Lair' },
-        dataType: 'json',
-        success: function(data){
-            // Do some nice stuff here
-        },
-        error: function(xhr, type){
-            alert('Y U NO WORK?')
-        }
-    });*/
-
-
 });
