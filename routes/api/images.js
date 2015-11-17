@@ -23,10 +23,10 @@ router.route('/').post(ImageCtrl.addImage);
 
 router.post('/emotiondetect/:imageid', function(req, res, next) {
     return Utils.detectEmotion(req.params.imageid, function(err, emotion){
-        /*if(err) {
+        if(err) {
             console.log(err);
             return res.send(err);
-        }*/
+        }
         console.log("Emotion calculated:" + emotion);
         return res.status(200).jsonp(emotion);
         //return res.send(emotion);

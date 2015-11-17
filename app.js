@@ -11,8 +11,6 @@ var exphbs        = require('express-handlebars');
 
 var app = express();
 
-//app.enable('trust proxy');
-
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
 
@@ -57,8 +55,6 @@ app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
 app.set('views', path.join(__dirname, 'views'));
-//app.set('view options', { layout: 'layout.hbs' });
-//app.set('view engine', 'hbs');
 
 /*Handlebars.registerHelper('base64decode', function(base64str) {
   return new Buffer(base64str, 'base64');
@@ -86,13 +82,6 @@ var images = require('./routes/api/images');
 app.use('/', routes);
 app.use('/api/images/', images);
 
-
-/*var Image  = require('mongoose').model('Image');
-Image.findOne(function (err, image) {
-  if (err) throw err;
-  if(!image) throw new Error("No image found in database");
-  if (image.image) console.log("We must call Oxford API here!!");
-});*/
 
 var open = require('open');
 //open("http://localhost:3000/show-images");
