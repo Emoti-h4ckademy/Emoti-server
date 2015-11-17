@@ -2,6 +2,7 @@
  * Created by Carlos on 6/11/15.
  */
 var Image = require('mongoose').model('Image');
+var Oxfordlib = require('../lib/oxford');
 
 //GET - Return all images in the DB
 exports.findAllImages = function(req, res) {
@@ -53,24 +54,29 @@ exports.findImageById = function(req, res) {
 
 //POST - Insert a new image in the DB
 exports.addImage = function(req, res) {
-    console.log('POST');
-    console.log(req.body);
-
-    console.log("Client IP 1 : " + req.connection.remoteAddress);
-    console.log("Client IP 2 : " + req.ip);
-
-    var image = new Image({
-        username: req.body.username,
-        ip:     req.connection.remoteAddress,
-        date:   new Date(),
-        image: 	req.body.image
+    console.log('addImage');
+    console.log("Petition from: " + req.ip + ". Username: " + req.body.username);
+    
+    Oxfordlib.recognizeImageB64(req.body.image, function(error, emotions){
+        console.log("Image recognition: Error = " + error + "; Emotions: " + emotions);
+        
+        var store = new Image({
+            username: req.body.username,
+            ip:     req.ip,
+            date:   new Date(),
+            image: 	req.body.image,
+            emotions: emotions
+        });
+        
+        store.save(function(err, store) {
+            if (err) {
+                res.send(500, err.message);
+            } else {
+                res.status(200).send("Image saved");
+        }
+    });
+        
     });
 
-    image.save(function(err, image) {
-        if(err) return res.send(500, err.message);
-        res.status(200);
-    });
-
-    console.log('POST /images')
 };
 
