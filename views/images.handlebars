@@ -7,10 +7,12 @@
         <div class="col-md-4">
             <img style="max-width: 98%;" src="data:image/png; base64,{{image}}"/>
         </div>
-        <div class="col-md-6">
-            <button  id="{{_id}}" class="btn btn-success emotion-retriever pull-left"
-                     style="margin: 2rem;" type="button">Detect Emotion</button>
-            <div class="ajax-response-box pull-left" {{_id}}></div>
+        <div class="col-md-8">
+            <div style="text-align: center;">
+                <button  id="{{_id}}" class="btn btn-success emotion-retriever pull-left"
+                         style="margin: 2rem; margin-top: 8rem" type="button">Detect Emotion</button>
+            </div>
+            <div class="ajax-response-container pull-left" {{_id}}></div>
         </div>
     </div>
 {{/each}}
