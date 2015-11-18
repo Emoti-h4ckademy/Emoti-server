@@ -23,11 +23,6 @@ mongoose.connect('mongodb://localhost/emoti', function(err, res) {
 
 utils.registerModels(app, mongoose);
 
-// Middlewares
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-//app.use(methodOverride());
-
 // view engine setup
 var hbs = exphbs.create({
   // Specify helpers which are only registered on this instance.
@@ -61,8 +56,11 @@ app.set('views', path.join(__dirname, 'views'));
   return new Buffer(base64str, 'base64');
 });*/
 
+
+// Middlewares
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+//app.use(methodOverride());
 app.use(logger(dev ? 'dev' : {
   stream: require('fs').createWriteStream('log')
 }));
