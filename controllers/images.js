@@ -58,14 +58,17 @@ exports.addImage = function(req, res) {
     console.log("Petition from: " + req.ip + ". Username: " + req.body.username);
     
     Oxfordlib.recognizeImageB64(req.body.image, function(error, emotions){
+        var mainEmotion = Oxfordlib.extractMainEmotion(emotions).emotion;
+        console.log("Emotion for this image: " + mainEmotion);
         console.log("Image recognition: Error = " + error + "; Emotions: " + emotions);
         
         var store = new Image({
-            username: req.body.username,
-            ip:     req.ip,
-            date:   new Date(),
-            image: 	req.body.image,
-            emotions: emotions
+            username:    req.body.username,
+            ip:          req.ip,
+            date:        new Date(),
+            image: 	     req.body.image,
+            emotions:    emotions,
+            mainemotion: mainEmotion
         });
         
         store.save(function(err, store) {

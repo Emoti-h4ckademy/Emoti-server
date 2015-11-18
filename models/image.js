@@ -5,11 +5,12 @@
 exports = module.exports = function(app, mongoose) {
 
     var ImageSchema = new mongoose.Schema({
-        username:   { type: String },
-        ip:         { type: String },
-        date:       { type: Date},
-        image:      { type: String },
-        emotions:   { type: String }
+        username:    { type: String },
+        ip:          { type: String },
+        date:        { type: Date},
+        image:       { type: String },
+        emotions:    { type: String },
+        mainemotion: { type: String}
     });
 
     mongoose.model('Image', ImageSchema);
