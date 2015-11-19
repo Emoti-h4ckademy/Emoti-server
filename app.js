@@ -83,10 +83,8 @@ var images = require('./routes/api/images');
 app.use('/', routes);
 app.use('/api/images/', images);
 
-
-var open = require('open');
+//var open = require('open');
 //open("http://localhost:3000/show-images");
-//utils.testOxfordAPI();
 
 
 // catch 404 and forward to error handler
