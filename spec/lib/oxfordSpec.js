@@ -11,7 +11,7 @@ describe("Oxford - recognizeImageB64", function() {
     
     it("Check empty image", function() {
         Oxford.recognizeImageB64(null, function (error, emotionString) {
-            expect(error).toBeFalsy();
+            expect(error).toBeTruthy();
         });
     });
     
@@ -56,7 +56,7 @@ describe("Oxford - Parse response", function() {
     });
     
     it("Check parser with empty response", function() {
-       Oxford._oxfordParseResponse(null, function (error, emotionString) {
+       Oxford._parseResponse(null, function (error, emotionString) {
            expect(error).toBeTruthy();
        }) 
     });
@@ -64,7 +64,7 @@ describe("Oxford - Parse response", function() {
     it("Check error status code 200", function () {
         response.statusCode = 200;
         
-        Oxford._oxfordParseResponse(response, function (error, emotionString) {
+        Oxford._parseResponse(response, function (error, emotionString) {
            expect(error).toBeFalsy();
         });
     });
@@ -79,7 +79,7 @@ describe("Oxford - Parse response", function() {
         
         for (var index = 0; index < errorCodes.length; index++) {
             response.statusCode = errorCodes[index];
-            Oxford._oxfordParseResponse(response, function (error, emotionString) {
+            Oxford._parseResponse(response, function (error, emotionString) {
                 expect(error).toBeTruthy();
                 expect(emotionString).toEqual("[]");
             });
@@ -90,7 +90,7 @@ describe("Oxford - Parse response", function() {
         response.statusCode = 200;
         response.body = "[]";
         
-        Oxford._oxfordParseResponse(response, function (error, emotionString) {
+        Oxford._parseResponse(response, function (error, emotionString) {
             expect(error).toBeFalsy();
             expect(emotionString).toEqual("[]");
         });
