@@ -1,6 +1,6 @@
 describe("Oxford - recognizeImageB64", function() {
     var app = require('../../app');
-    var ImageDB = require ('../../controllers/images')
+    var ImageDB = require ('../../controllers/images');
     var http = require('http');
     
     var Oxford;
@@ -37,7 +37,7 @@ describe("Oxford - recognizeImageB64", function() {
     
     it("Check empty emotionString when the an error is found", function() {
         Oxford.recognizeImageB64(null, function (error, emotionString) {
-            expect(emotionString).toEqual("{}");
+            expect(emotionString).toEqual("[]");
         });
     });
 });
@@ -81,8 +81,20 @@ describe("Oxford - Parse response", function() {
             response.statusCode = errorCodes[index];
             Oxford._oxfordParseResponse(response, function (error, emotionString) {
                 expect(error).toBeTruthy();
+                expect(emotionString).toEqual("[]");
             });
         }
     });
-
+    
+    it("Valid response without faces found", function () {
+        response.statusCode = 200;
+        response.body = "[]";
+        
+        Oxford._oxfordParseResponse(response, function (error, emotionString) {
+            expect(error).toBeFalsy();
+            expect(emotionString).toEqual("[]");
+        });
+    });
+    
+    
 });
