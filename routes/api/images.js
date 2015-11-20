@@ -26,6 +26,8 @@ router.post('/emotiondetect/:imageid', function(req, res, next) {
     try {
         return TestUtils.detectImageByIdEmotion(req.params.imageid, function (err, emotionObj, mainEmotion) {
             console.log("Main emotion in detectImageByIdEmotion: " + mainEmotion);
+            var emotionObj = JSON.parse(emotionObj);
+            emotionObj[0].emotion = mainEmotion;
             return res.status(200).jsonp(emotionObj);
         });
     } catch (error){

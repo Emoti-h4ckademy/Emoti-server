@@ -1,8 +1,23 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  padding-top: 65px; }
 
 a {
   color: #00B7FF; }
+
+.home-middle {
+  background-image: url("/images/emoti-middle.jpg");
+  background-size: 100% auto;
+  min-height: 580px; }
+
+.whats-emoti-container {
+  margin: 12% 0 0 4%; }
+  .whats-emoti-container div p {
+    color: whitesmoke;
+    font-weight: 300; }
+
+.whats-emoti-text {
+  max-width: 364px;
+  line-height: 1.8em; }
 
 /*# sourceMappingURL=style.css.map */

@@ -13,12 +13,11 @@ $(document).ready(function() {
             data: {  },
             dataType: 'json',
             success: function(data){
-                console.log(data);
-                var responseContainer = $('.ajax-response-container');
-                var responseBox = $('.ajax-response-box');
-                responseContainer.html('<h2>' + data.emotion + '</h2>' +
-                    '<div style="max-width: 564px;"><p><pre>'+ JSON.stringify(data.oxfordResponse.scores, null, '') +'</pre></p></div>');
-                // Do some nice stuff here
+                var responseContainer = $('.ajax-response-container' + buttonId);
+                //console.log(JSON.stringify(data.scores, null, ''));
+                var scores = JSON.stringify(data[0].scores);
+                responseContainer.html('<h2>' + data[0].emotion + '</h2>' +
+                    '<div style="max-width: 564px;"><p><pre>'+ scores +'</pre></p></div>');
             },
             error: function(xhr, type){
                 alert('AJAX response returned and error' + xhr + ' ' + type);

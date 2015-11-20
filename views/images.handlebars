@@ -1,6 +1,5 @@
-<div class="page-header" id="banner">
+<div class="wrapper container">
 <div class="row"><h4>Images stored in database</h4></div>
-</div>
 {{#each myimages}}
     <h5>Username: {{username}}</h5>
     <div class="row">
@@ -12,7 +11,8 @@
                 <button  id="{{_id}}" class="btn btn-success emotion-retriever pull-left"
                          style="margin: 2rem; margin-top: 8rem" type="button">Detect Emotion</button>
             </div>
-            <div class="ajax-response-container pull-left" {{_id}}></div>
+            <div class="ajax-response-container{{_id}} pull-left"></div>
         </div>
     </div>
 {{/each}}
+</div>
