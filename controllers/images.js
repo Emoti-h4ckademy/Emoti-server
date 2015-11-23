@@ -41,50 +41,101 @@ exports.findOneImage = function(req, res) {
     });
 };
 
-/*
-//GET - Return an image with specified ID
-exports.findImageById = function(req, res) {
-    Image.findById(req.params.id, function(err, image) {
-        if(err) return res.send(500, err.message);
+/**
+ * Checks wether a request to the addImage API is valid
+ * @param {type} request HTTP request
+ * @returns {Boolean}
+ */
+function _checkRequest (request)
+{
+    if (!request) {
+        return false;
+    }
+    
+    if (request.method !== 'POST') {
+        return false;
+    }
+    
+    if (request.get('Content-Type') !== 'application/json') {
+        return false;
+    }
+    
+    var existsUsername = request.body.username;
+    var existsImage = request.body.image;
+    
+    if (!existsImage || !existsUsername) {
+        return false;
+    }
+    
+    return true;
+}
 
-        console.log('GET /images/' + req.params.id);
-        res.status(200).jsonp(image);
-    });
-};*/
+exports._checkRequest = _checkRequest;
 
-//POST - Insert a new image in the DB
+/**
+ * Receives a HTTP Request with an image and stores it in the DB.
+ * If oxfordLib is down then the image is stored without info of the emotion
+ * @param {type} req - HTTP request with the image
+ * @param {type} res - HTTP Response to use
+ * @returns {undefined}
+ */
 exports.addImage = function(req, res) {
-    console.log('addImage');
-    console.log("Petition from: " + req.ip + ". Username: " + req.body.username);
+    var validRequest = _checkRequest(req);
+    
+    if (!validRequest) {
+        console.log("addImage: Invalid request");
+        res.status(400).send("Invalid request");
+        return;
+    }
+    
+    console.log("addImage: Petition from: " + req.ip + ". Username: " + req.body.username);
 
     Oxfordlib.recognizeImageB64(req.body.image, function(error, emotions){
-        var mainEmotionObj =Oxfordlib.extractMainEmotion(emotions);
-
-        if(mainEmotionObj != undefined){
-            var mainEmotion = mainEmotionObj.emotion;
-
-            console.log("Emotion for this image: " + mainEmotion);
-            console.log("Image recognition: Error = " + error + "; Emotions: " + emotions);
-
+        
+        var store;
+        
+        if (error) {
+            console.log ("addImage: ERROR: " + error);
+            
+            //Failure in connection with Oxford API: Setup to store without emotions
             var store = new Image({
                 username:    req.body.username,
                 ip:          req.ip,
                 date:        new Date(),
                 image: 	     req.body.image,
+            });
+            
+        } else {
+            //Extract main emotion
+            var mainEmotionObj = Oxfordlib.extractMainEmotion(emotions);
+
+            if(mainEmotionObj === Oxfordlib.emptyEmotion){
+                console.log("addImage: No emotion detected");
+                res.status(400).send("No emotion detected in this image");
+                return;
+            }
+
+            var mainEmotion = mainEmotionObj.emotion;
+
+            console.log("addImage: Image recognition: " + mainEmotion + " (" + emotions + ")");
+
+            var store = new Image({
+                username:    req.body.username,
+                ip:          req.ip,
+                date:        new Date(),
+                image:       req.body.image,
                 emotions:    emotions,
                 mainemotion: mainEmotion
             });
-
-            store.save(function(err, store) {
-                if (err) {
-                    res.send(500, err.message);
-                } else {
-                    res.status(200).send("Image saved");
-                }
-            });
-        } else {
-            res.send(500, "Couldn't retrieve emotion");
         }
+
+        store.save(function(error, store) {
+            if (error) {
+                res.status(500).send(error.message);
+            } else {
+                res.status(200).send("Image stored correctly");
+            }
+        });
     });
 
 };
