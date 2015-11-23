@@ -15,20 +15,20 @@ describe("Oxford - recognizeImageB64:", function() {
         });
     });
     
-    it("Check invalid license", function() {
+    xit("Check invalid license", function(done) {
         Oxford.oxfordApiKey = "Invalid";
 
-        Image = ImageDB.returnOneImage( function () {
+        ImageDB.getImagesStoredWithEmotions(1, function (error, Image) {
             Oxford.recognizeImageB64(Image.image, function (error, emotionString) {
                 expect(error).toBeTruthy();
             });
         });
     });
     
-    it("Check invalid url", function() {
+    xit("Check invalid url", function() {
         Oxford.oxfordUrl = "http://www.hackademy.com";
         
-        Image = ImageDB.returnOneImage( function () {
+        ImageDB.getImagesStoredWithEmotions(1, function (error, Image) {
             Oxford.recognizeImageB64(Image.image, function (error, emotionString) {
                 expect(error).toBeTruthy();
             });
