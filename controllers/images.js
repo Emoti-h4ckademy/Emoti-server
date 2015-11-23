@@ -160,7 +160,7 @@ exports.addImage = function(req, res) {
             //Extract main emotion
             var mainEmotionObj = Oxfordlib.extractMainEmotion(emotions);
 
-            if(mainEmotionObj === Oxfordlib.emptyEmotion){
+            if (mainEmotionObj === Oxfordlib.emptyEmotion) {
                 console.log("addImage: No emotion detected");
                 res.status(400).send("No emotion detected in this image");
                 return;
@@ -178,15 +178,15 @@ exports.addImage = function(req, res) {
                 emotions:    emotions,
                 mainemotion: mainEmotion
             });
-        }
 
-        store.save(function(error, store) {
-            if (error) {
-                res.status(500).send(error.message);
-            } else {
-                res.status(200).send("Image stored correctly");
-            }
-        });
+            store.save(function (error, store) {
+                if (error) {
+                    res.status(500).send(error.message);
+                } else {
+                    res.status(200).send("Image stored correctly");
+                }
+            });
+        }
     });
 
 };

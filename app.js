@@ -10,18 +10,14 @@ var exphbs        = require('express-handlebars');
 
 
 var app = express(),
-    dev = app.get('env') === 'development';
+    dev = app.get('env') === 'development' || 'demo';
 
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
 
-// Connection to DB
-mongoose.connect('mongodb://localhost/emoti', function(err, res) {
-  if(err) throw err;
-  console.log('Connected to Database');
-});
 
-utils.registerModels(app, mongoose);
+
+utils.initializeDatabase(app, mongoose);
 
 // view engine setup
 var hbs = exphbs.create({
