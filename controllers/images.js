@@ -77,7 +77,7 @@ exports.addImage = function(req, res) {
 
             store.save(function(err, store) {
                 if (err) {
-                    res.send(500, err.message);
+                    res.status(500).send(err.message);
                 } else {
                     res.status(200).send("Image saved");
                 }
