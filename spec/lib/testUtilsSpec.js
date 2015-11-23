@@ -1,65 +1,86 @@
-describe("testUtils - generate mock emotions data:", function() {
-    var app = require('../../app');
-    var ImageDB = require('../../controllers/images');
+describe("testUtils - generate mock emotions object:", function() {
+    //var app = require('../../app');
+   // var ImageDB = require('../../controllers/images');
     var testUtils = require('../../lib/test/testUtils');
 
-    var mockObj;
+    var responseMock,
+        mockObj;
 
     beforeEach(function () {
-        mockObj = testUtils.generateMockEmotionObj();
+        responseMock = testUtils.generateMockEmotionsArray();
+        mockObj = responseMock[0];
     });
 
-    it("Must return an array", function() {
-        expect(mockObj).toEqual(jasmine.any(Array));
+    it("Response generated from generateMockEmotionsArray must be an array", function() {
+        expect(responseMock).toEqual(jasmine.any(Array));
     });
 
-    it("The array must have an object in it", function() {
-        expect(mockObj[0]).toEqual(jasmine.anything());
+    it("The array must not be empty", function() {
+        expect(responseMock[0]).toEqual(jasmine.anything());
     });
 
-    it("It must contain an object", function() {
-        expect(mockObj[0]).toEqual(jasmine.any(Object));
+    it("The array must contain an Object", function() {
+        expect(responseMock[0]).toEqual(jasmine.any(Object));
     });
 
     it("The object must have faceRentangle property", function(){
-        expect(mockObj[0].faceRectangle).toEqual(jasmine.anything());
+        expect(mockObj.faceRectangle).toEqual(jasmine.anything());
 
     });
 
     it("The object must have scores property", function(){
 
-        expect(mockObj[0].scores).toEqual(jasmine.anything());
+        expect(mockObj.scores).toEqual(jasmine.anything());
     });
 
     it("faceRectangle property must have left, top, width and height", function(){
-        expect(mockObj[0].faceRectangle.left).toEqual(jasmine.anything());
-        expect(mockObj[0].faceRectangle.top).toEqual(jasmine.anything());
-        expect(mockObj[0].faceRectangle.width).toEqual(jasmine.anything());
-        expect(mockObj[0].faceRectangle.height).toEqual(jasmine.anything());
+        expect(mockObj.faceRectangle.left).toEqual(jasmine.anything());
+        expect(mockObj.faceRectangle.top).toEqual(jasmine.anything());
+        expect(mockObj.faceRectangle.width).toEqual(jasmine.anything());
+        expect(mockObj.faceRectangle.height).toEqual(jasmine.anything());
 
     });
 
     it("scores property must have anger, contempt, disgust, fear, happiness, neutral, " +
         "sadness and surprise", function(){
-        console.log(mockObj[0].scores);
-        expect(mockObj[0].scores.anger).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.contempt).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.disgust).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.fear).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.happiness).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.neutral).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.sadness).toEqual(jasmine.anything());
-        expect(mockObj[0].scores.surprise).toEqual(jasmine.anything());
+        expect(mockObj.scores.anger).toEqual(jasmine.anything());
+        expect(mockObj.scores.contempt).toEqual(jasmine.anything());
+        expect(mockObj.scores.disgust).toEqual(jasmine.anything());
+        expect(mockObj.scores.fear).toEqual(jasmine.anything());
+        expect(mockObj.scores.happiness).toEqual(jasmine.anything());
+        expect(mockObj.scores.neutral).toEqual(jasmine.anything());
+        expect(mockObj.scores.sadness).toEqual(jasmine.anything());
+        expect(mockObj.scores.surprise).toEqual(jasmine.anything());
 
     });
 
     it("scores values must be between 0 and 1", function(){
-        for (score in mockObj[0].scores) {
+        for (score in mockObj.scores) {
             expect(0 <= score <= 1).toBe(true);
         }
 
     });
 
 
+
+});
+
+describe("testUtils - generate mock emotions database document:", function() {
+    var testUtils = require('../../lib/test/testUtils');
+
+    it("generateMockImageDBdoc must return an object", function () {
+        var imageDoc = testUtils.generateMockImageDBdoc ();
+        expect(imageDoc).toEqual(jasmine.any(Object));
+    });
+
+    it("Document must have username, ip, date, image, emotions and mainemotion", function () {
+        var imageDoc = testUtils.generateMockImageDBdoc ();
+        expect(typeof imageDoc.username).toBe('string');
+        expect(typeof imageDoc.ip).toBe('string');
+        expect(imageDoc.date instanceof Date).toBe(true);
+        expect(typeof imageDoc.image).toBe('string');
+        expect(typeof imageDoc.emotions).toBe('string');
+        expect(typeof imageDoc.mainemotion).toBe('string');
+    });
 
 });
