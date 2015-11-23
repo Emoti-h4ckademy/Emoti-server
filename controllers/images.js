@@ -4,41 +4,92 @@
 var Image = require('mongoose').model('Image');
 var Oxfordlib = require('../lib/oxford');
 
-//GET - Return all images in the DB
-exports.findAllImages = function(req, res) {
-    Image.find(function(err, images) {
-        if(err) res.send(500, err.message);
-
-        console.log('GET /images')
-        res.status(200).jsonp(images);
+/**
+ * Checks wether a document has all the emotion stored and, if not, tries to access them
+ * If there aren't any faces/emotions in the image the document will be drop from the DB
+ * It there are emotion, the document will be updated in the DB
+ * @param {type} document As retrieved from the DB
+ * @param {type} callback - Function to callback (error, newImage)
+ * @returns {undefined}
+ */
+exports.checkDocument = function (document, callback) {
+    
+    var extractedImage = document._doc;
+    if (extractedImage.mainemotion) {
+        callback (false, extractedImage);
+    }
+    
+    Oxfordlib.recognizeImageB64(extractedImage.image, function(error, emotions){
+        if (error) {
+            console.log ("checkDocument: ERROR WITH OXFORD: " + error);
+            callback (true, extractedImage);
+        }
+        
+        var mainEmotionObj = Oxfordlib.extractMainEmotion(emotions);
+        if(mainEmotionObj == Oxfordlib.emptyEmotion){
+            Image.findByIdAndRemove(
+                {'_id': extractedImage._id},
+                {},
+                function (error, result) {
+                    console.log("checkDocument: No emotion detected - ID ("+ extractedImage._id +") DELETED FROM DATABASE. Error: "+ error);
+                }
+            );
+            callback (true, undefined);
+        }
+        
+        //Update the image in the DB with emotions
+        var mainEmotion = mainEmotionObj.emotion;
+        Image.findOneAndUpdate(
+            {'_id': extractedImage._id}, 
+            { $set: { emotions: emotions, mainemotion: mainEmotion}},
+            {new: true},
+            function (error, result) {
+                console.log("checkDocument: Emotion detected " + mainEmotion + "- ID ("+ extractedImage._id +") UPDATED IN DATABASE. Error: "+ error);
+                return (false, result);
+            }
+        );
+        
     });
-};
+}
 
-exports.returnAllImages = function(callback) {
-    Image.find(function(err, images) {
-       /*if (err) {
-            throw Error;
-       }*/
-        callback(err, images);
-    });
-};
+/**
+ * 
+ * @param {type} queryLimit
+ * @param {type} callback
+ * @returns {undefined}
+ */
+exports.updateImagesWithoutEmotions = function (queryLimit, callback) {
+    Image.find(
+        {"mainemotion" : { "$exists" : false }},
+        {},
+        { limit : queryLimit },
+        function (err, documents) {
+            if (!err) {
+                for (var iterator = 0; iterator < documents.length; iterator++) {
+                    checkDocument(documents[iterator]);
+                }
+            }
 
-exports.returnOneImage = function(callback) {
-    Image.findOne(function(err, images) {
-        /*if (err) {
-         throw Error;
-         }*/
-        callback(err, images);
-    });
-};
+            callback (err, documents);
+        }
+    );
+}
 
-exports.findOneImage = function(req, res) {
-    Image.findOne(function(err, images) {
-        if(err) res.send(500, err.message);
-
-        console.log('GET /images')
-        res.status(200).jsonp(images);
-    });
+/**
+ * 
+ * @param {type} queryLimit
+ * @param {type} callback
+ * @returns {undefined}
+ */
+exports.getImagesStoredWithEmotions = function(queryLimit, callback) {
+    Image.find(
+        {"mainemotion" : { "$exists" : true }},
+        {},
+        { limit : queryLimit },
+        function (err, images) {
+            callback(err, images);
+        }
+    );
 };
 
 /**
@@ -98,7 +149,7 @@ exports.addImage = function(req, res) {
             console.log ("addImage: ERROR: " + error);
             
             //Failure in connection with Oxford API: Setup to store without emotions
-            var store = new Image({
+            store = new Image({
                 username:    req.body.username,
                 ip:          req.ip,
                 date:        new Date(),
@@ -119,12 +170,12 @@ exports.addImage = function(req, res) {
 
             console.log("addImage: Image recognition: " + mainEmotion + " (" + emotions + ")");
 
-            var store = new Image({
-                username: req.body.username,
-                ip: req.ip,
-                date: new Date(),
-                image: req.body.image,
-                emotions: emotions,
+            store = new Image({
+                username:    req.body.username,
+                ip:          req.ip,
+                date:        new Date(),
+                image:       req.body.image,
+                emotions:    emotions,
                 mainemotion: mainEmotion
             });
 
@@ -136,36 +187,6 @@ exports.addImage = function(req, res) {
                 }
             });
         }
-    });
-
-};
-
-exports.addFieldToImage = function(imageId, newFieldKey, newFieldValue, callback) {
-    console.log("addFieldToImage newFieldKey: " + newFieldKey);
-    console.log("addFieldToImage newFieldValue: " + newFieldValue);
-
-    //We must test if the problem was the type of the id
-    //var id = require('mongoose').Types.ObjectId(imageId);
-
-    Image.update({ _id: imageId }, { $set: { newFieldKey: newFieldValue }}, function(err, numberAffected) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("Image " + imageId + " updated: " + numberAffected);
-        }
-    });
-
-};
-
-exports.updateField = function (imageid, fieldKey, newValue, callback){
-
-    Image.update({ _id: imageid }, { $set: { fieldKey: newValue }}, function(err, numberAffected){
-        if(err){
-            console.log(err);
-        } else {
-            console.log("Image " + id + " updated: " + numberAffected);
-        }
-        callback(err, numberAffected);
     });
 
 };

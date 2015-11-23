@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/show-images', function(req, res) {
-  ImageCtrl.returnAllImages(function(error, allImages){
+    ImageCtrl.getImagesStoredWithEmotions(0, function(error, allImages){
     res.render('images',
         {
           myimages : allImages/*,
@@ -21,7 +21,7 @@ router.get('/show-images', function(req, res) {
                             }
           }*/
         });
-  });
+    });
 
 });
 

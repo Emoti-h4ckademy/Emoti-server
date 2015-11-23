@@ -9,7 +9,7 @@ var TestUtils = require('../../lib/test/testUtils');
 
 /* GET images listing. */
 router.get('/', function(req, res, next) {
-    return ImageCtrl.returnAllImages(function(err, images){
+    return ImageCtrl.getImagesStoredWithEmotions(0, function(err, images){
         if(err) {
             console.log(err);
             return res.send(err);
