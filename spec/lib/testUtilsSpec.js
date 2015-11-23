@@ -84,3 +84,21 @@ describe("testUtils - generate mock emotions database document:", function() {
     });
 
 });
+
+describe("Test generateMultipleDBdocs", function(){
+    var testUtils = require('../../lib/test/testUtils');
+
+    it("It should return an array", function(){
+        var result = testUtils.generateMultipleDBdocs();
+        expect(result).toEqual(jasmine.any(Array));
+
+    });
+
+    it("It should return an array with the same length as the number passed as an argument", function(){
+        var number = 5;
+        var result = testUtils.generateMultipleDBdocs(number);
+        expect(result.length).toEqual(number);
+
+    });
+
+});
