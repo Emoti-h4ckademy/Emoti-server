@@ -17,7 +17,14 @@ app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
 
 
 
-utils.initializeDatabase(app, mongoose);
+utils.initializeDatabase(app, mongoose, function (error) {
+   if (error) {
+       console.log ("Could not initialize database. Check if MongoDB service is up");
+       process.exit(1);
+   } 
+});
+
+
 
 // view engine setup
 var hbs = exphbs.create({
