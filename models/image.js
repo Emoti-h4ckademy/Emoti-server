@@ -2,19 +2,17 @@
  * Created by Carlos on 6/11/15.
  */
 
-exports = module.exports = function(app, mongoose) {
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
-    var ImageSchema = new mongoose.Schema({
-        username:    { type: String },
-        ip:          { type: String },
-        date:        { type: Date},
-        image:       { type: String },
-        emotions:    { type: String },
-        mainemotion: { type: String}
-    });
+var imageSchema = new Schema({
+    username:    { type: String },
+    ip:          { type: String },
+    date:        { type: Date},
+    image:       { type: String },
+    emotions:    { type: String },
+    mainemotion: { type: String}
+});
 
-    mongoose.model('Image', ImageSchema);
-
-};
-
+module.exports = mongoose.model('Image', imageSchema);
 
