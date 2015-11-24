@@ -15,6 +15,14 @@ describe("READ operations", function(){
             done();
         });
     });
+
+    it("getImageByMonth should return something", function(done){
+        var month = new Date().getMonth();
+        ImageCtrl.getImageByMonth(month, function(error, images){
+            expect(images).toEqual(jasmine.anything());
+            done();
+        });
+    });
 });
 
 

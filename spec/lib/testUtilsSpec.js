@@ -94,17 +94,23 @@ describe("Test generateMultipleDBdocs", function(){
 
     });
 
-    xit("It should return an array with the same length as the number passed as an argument", function(){
+    xit("It should return an array with the same length as the number passed as an argument", function(done){
         var number = 5;
-        var result = testUtils.generateMultipleDBdocs(number);
-        expect(result.length).toEqual(number);
-
-    });
-
-    xit("It must save in database a specified number of documents", function(done){
-        var number = 10;
         var result = testUtils.generateMultipleDBdocs(number, true);
         expect(result.length).toEqual(number);
+        done();
+
     });
 
+    /*it("It must save in database documents for the current month", function(done){
+        var result = testUtils.generateMockDataforMonth(new Date().getMonth(), true);
+        expect(1 == 1).toBe(true);
+        //done();
+    });*/
+
+    it("It must save in database documents for the specified month", function(done){
+        var result = testUtils.generateMockDataforMonth(12, true);
+        expect(1 == 1).toBe(true);
+        //done();
+    });
 });
