@@ -25,5 +25,9 @@ router.get('/show-images', function(req, res) {
 
 });
 
+router.get('/charts', function(req, res) {
+    res.render('charts');
+});
+
 
 module.exports = router;
