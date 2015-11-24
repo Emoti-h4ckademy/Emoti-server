@@ -1,6 +1,3 @@
-/**
- * Created by Carlos on 6/11/15.
- */
 var Image = require('mongoose').model('Image');
 var Oxfordlib = require('../lib/oxford');
 
@@ -93,34 +90,26 @@ exports.getImagesStoredWithEmotions = function(queryLimit, callback) {
 };
 
 /**
- * Checks wether a request to the addImage API is valid
+ * Checks wether a request to the addImage function is valid
  * @param {type} request HTTP request
  * @returns {Boolean}
  */
 function _checkRequest (request)
 {
-    if (!request) {
-        return false;
-    }
-    
-    if (request.method !== 'POST') {
-        return false;
-    }
-    
-    if (request.get('Content-Type') !== 'application/json') {
+    if ((!request) ||
+        (request.method !== 'POST') ||
+        (request.get('Content-Type') !== 'application/json')) {
         return false;
     }
     
     var existsUsername = request.body.username;
     var existsImage = request.body.image;
-    
     if (!existsImage || !existsUsername) {
         return false;
     }
     
     return true;
 }
-
 exports._checkRequest = _checkRequest;
 
 /**
