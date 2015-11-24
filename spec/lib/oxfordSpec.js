@@ -1,12 +1,12 @@
 describe("Oxford - recognizeImageB64:", function() {
-    var app = require('../../app');
     var ImageDB = require ('../../controllers/images');
     var http = require('http');
     
     var Oxford;
     
     beforeEach(function(){
-       Oxford = require('../../lib/oxford'); 
+       Oxford = require('../../lib/oxford');
+
     });
     
     it("Check empty image", function() {
@@ -15,23 +15,21 @@ describe("Oxford - recognizeImageB64:", function() {
         });
     });
     
-    xit("Check invalid license", function(done) {
+    it("Check invalid license", function(done) {
         Oxford.oxfordApiKey = "Invalid";
 
-        ImageDB.getImagesStoredWithEmotions(1, function (error, Image) {
-            Oxford.recognizeImageB64(Image.image, function (error, emotionString) {
-                expect(error).toBeTruthy();
-            });
+        Oxford.recognizeImageB64("myimg", function (error, emotionString) {
+            expect(error).toBeTruthy();
+            done();
         });
     });
     
-    xit("Check invalid url", function() {
+    it("Check invalid url", function(done) {
         Oxford.oxfordUrl = "http://www.hackademy.com";
         
-        ImageDB.getImagesStoredWithEmotions(1, function (error, Image) {
-            Oxford.recognizeImageB64(Image.image, function (error, emotionString) {
-                expect(error).toBeTruthy();
-            });
+        Oxford.recognizeImageB64("myimg", function (error, emotionString) {
+            expect(error).toBeTruthy();
+            done();
         });
     });
     
@@ -43,7 +41,6 @@ describe("Oxford - recognizeImageB64:", function() {
 });
 
 describe("Oxford - Parse response:", function() {
-    var app = require('../../app');
     var http = require('http');
     var httpMocks = require('node-mocks-http');
     
