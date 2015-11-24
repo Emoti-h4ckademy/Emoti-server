@@ -1,6 +1,5 @@
 describe("Controllers: images - checkRequest", function() {
-    var app = require('../../app');
-    var http = require('http');
+    
     var httpMocks = require('node-mocks-http');
     var ImageCtrl = require('../../controllers/images');
     
@@ -67,3 +66,5 @@ describe("Controllers: images - checkRequest", function() {
     });  
     
 });
+
+

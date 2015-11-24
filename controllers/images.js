@@ -1,4 +1,4 @@
-var Image = require('mongoose').model('Image');
+var Image = require('../models/image');
 var Oxfordlib = require('../lib/oxford');
 
 /**
