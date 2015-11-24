@@ -214,7 +214,6 @@ exports.getImageByMonth = function (month, callback) {
     Image.find({'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}},
         'username mainemotion emotions date',
         {$sort: { 'date' : 'ascending' } },function (err, images) {
-        if (err) return console.log(err);
         console.log("Number of images: " + images) // Space Ghost is a talk show host.
         callback(err, images);
     });
