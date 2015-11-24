@@ -1,5 +1,17 @@
-var Image = require('../models/image');
-var Oxfordlib = require('../lib/oxford');
+/**
+ * Images constructor
+ * 
+ * The exports object of the "images" module is an instance of this class.
+ * Most apps will only use this one instance.
+ */
+function Images (imageModelPath) {
+    imageModelPath = imageModelPath || '../models/image';
+    this.imageDB = require(imageModelPath);
+    this.oxfordLib = require('../lib/oxford');
+}
+
+//var Image = require('../models/image');
+//var Oxfordlib = require('../lib/oxford');
 
 /**
  * Checks wether a document has all the emotion stored and, if not, tries to access them
@@ -9,22 +21,22 @@ var Oxfordlib = require('../lib/oxford');
  * @param {type} callback - Function to callback (error, newImage)
  * @returns {undefined}
  */
-exports.checkDocument = function (document, callback) {
+Images.prototype.checkDocument = function (document, callback) {
     
     var extractedImage = document._doc;
     if (extractedImage.mainemotion) {
         callback (false, extractedImage);
     }
     
-    Oxfordlib.recognizeImageB64(extractedImage.image, function(error, emotions){
+    this.oxfordLib.recognizeImageB64(extractedImage.image, function(error, emotions){
         if (error) {
             console.log ("checkDocument: ERROR WITH OXFORD: " + error);
             callback (true, extractedImage);
         }
         
-        var mainEmotionObj = Oxfordlib.extractMainEmotion(emotions);
-        if(mainEmotionObj == Oxfordlib.emptyEmotion){
-            Image.findByIdAndRemove(
+        var mainEmotionObj = this.oxfordLib.extractMainEmotion(emotions);
+        if(mainEmotionObj == this.oxfordLib.emptyEmotion){
+            this.imageDB.findByIdAndRemove(
                 {'_id': extractedImage._id},
                 {},
                 function (error, result) {
@@ -36,7 +48,7 @@ exports.checkDocument = function (document, callback) {
         
         //Update the image in the DB with emotions
         var mainEmotion = mainEmotionObj.emotion;
-        Image.findOneAndUpdate(
+        this.imageDB.findOneAndUpdate(
             {'_id': extractedImage._id}, 
             { $set: { emotions: emotions, mainemotion: mainEmotion}},
             {new: true},
@@ -55,8 +67,8 @@ exports.checkDocument = function (document, callback) {
  * @param {type} callback
  * @returns {undefined}
  */
-exports.updateImagesWithoutEmotions = function (queryLimit, callback) {
-    Image.find(
+Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
+    this.imageDB.find(
         {"mainemotion" : { "$exists" : false }},
         {},
         { limit : queryLimit },
@@ -78,8 +90,8 @@ exports.updateImagesWithoutEmotions = function (queryLimit, callback) {
  * @param {type} callback
  * @returns {undefined}
  */
-exports.getImagesStoredWithEmotions = function(queryLimit, callback) {
-    Image.find(
+Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
+    this.imageDB.find(
         {"mainemotion" : { "$exists" : true }},
         {},
         { limit : queryLimit },
@@ -94,7 +106,7 @@ exports.getImagesStoredWithEmotions = function(queryLimit, callback) {
  * @param {type} request HTTP request
  * @returns {Boolean}
  */
-function _checkRequest (request)
+Images.prototype._checkRequest = function (request)
 {
     if ((!request) ||
         (request.method !== 'POST') ||
@@ -110,7 +122,6 @@ function _checkRequest (request)
     
     return true;
 }
-exports._checkRequest = _checkRequest;
 
 /**
  * Receives a HTTP Request with an image and stores it in the DB.
@@ -119,7 +130,7 @@ exports._checkRequest = _checkRequest;
  * @param {type} res - HTTP Response to use
  * @returns {undefined}
  */
-exports.addImage = function(req, res) {
+Images.prototype.addImage = function(req, res) {
     var validRequest = _checkRequest(req);
     
     if (!validRequest) {
@@ -130,7 +141,7 @@ exports.addImage = function(req, res) {
     
     console.log("addImage: Petition from: " + req.ip + ". Username: " + req.body.username);
 
-    Oxfordlib.recognizeImageB64(req.body.image, function(error, emotions){
+    this.oxfordLib.recognizeImageB64(req.body.image, function(error, emotions){
         
         var store;
         
@@ -147,9 +158,9 @@ exports.addImage = function(req, res) {
             
         } else {
             //Extract main emotion
-            var mainEmotionObj = Oxfordlib.extractMainEmotion(emotions);
+            var mainEmotionObj = this.oxfordLib.extractMainEmotion(emotions);
 
-            if (mainEmotionObj === Oxfordlib.emptyEmotion) {
+            if (mainEmotionObj === this.oxfordLib.emptyEmotion) {
                 console.log("addImage: No emotion detected");
                 res.status(400).send("No emotion detected in this image");
                 return;
@@ -159,7 +170,7 @@ exports.addImage = function(req, res) {
 
             console.log("addImage: Image recognition: " + mainEmotion + " (" + emotions + ")");
 
-            store = new Image({
+            store = new this.imageDB({
                 username:    req.body.username,
                 ip:          req.ip,
                 date:        new Date(),
@@ -180,11 +191,16 @@ exports.addImage = function(req, res) {
 
 };
 
-exports.getImageByMonth = function (month, callback) {
-    Image.find({'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}},
+Images.prototype.getImageByMonth = function (month, callback) {
+    this.imageDB.find({'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}},
         'username mainemotion emotions date',
         {$sort: { 'date' : 'ascending' } },function (err, images) {
         console.log("Number of images: " + images) // Space Ghost is a talk show host.
         callback(err, images);
     });
 };
+
+/*!
+ * The exports object is an instance of Oxford.
+ */
+var images = module.exports = exports = new Images;
