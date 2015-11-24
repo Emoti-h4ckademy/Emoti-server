@@ -54,8 +54,8 @@ var normalizedStackBar = function () {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.csv("data.csv", function(error, data) {
-        if (error) console.log(error);
+    d3.json("http://localhost:3000/api/charts", function(error, data) {
+        if (error) console.log("Error loading data: " + error);
 
         color.domain(d3.keys(data[0]).filter(function(key) { return key !== "State"; }));
 

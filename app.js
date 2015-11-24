@@ -84,9 +84,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var routes = require('./routes/index');
 var images = require('./routes/api/images');
+var charts = require('./routes/api/charts');
 
 app.use('/', routes);
 app.use('/api/images/', images);
+app.use('/api/charts/', charts);
 
 //var open = require('open');
 //open("http://localhost:3000/show-images");
