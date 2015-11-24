@@ -191,4 +191,23 @@ exports.addImage = function(req, res) {
 
 };
 
+exports.addMockImage = function (mockImage, callback){
+    if(mockImage == undefined) {
+        callback(new Error("A valid Mock Image must be passed as an argument"), store);
+    } else {
+        var store = new Image({
+            username:    mockImage.username,
+            ip:          mockImage.ip,
+            date:        mockImage.date,
+            image:       mockImage.image,
+            emotions:    mockImage.emotions,
+            mainemotion: mockImage.mainemotion
+        });
+
+        store.save(function (error, store) {
+            callback(error, store);
+        });
+    }
+};
+
 

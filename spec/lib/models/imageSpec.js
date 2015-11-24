@@ -6,9 +6,9 @@ var Utils     = require('../../../lib/utils');
 var mongoose = require('mongoose')
 var Image = mongoose.model('Image');
 
-describe("Test find images:", function(){
+describe("READ operations:", function(){
 
-    it("It return all images in database", function(done) {
+    it("Image.find must return all images in database", function(done) {
         Image.find(function(err, images) {
             expect(err).toBe(null);
             expect(images).toEqual(jasmine.anything());
@@ -16,9 +16,5 @@ describe("Test find images:", function(){
         });
 
     });
-});
-
-describe("Update database; ", function(){
-
 });
 

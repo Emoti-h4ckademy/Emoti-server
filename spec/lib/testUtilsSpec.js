@@ -101,4 +101,10 @@ describe("Test generateMultipleDBdocs", function(){
 
     });
 
+    it("It must save in database a specified number of documents", function(done){
+        var number = 10;
+        var result = testUtils.generateMultipleDBdocs(number, true);
+        expect(result.length).toEqual(number);
+    });
+
 });
