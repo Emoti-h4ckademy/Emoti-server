@@ -10,9 +10,6 @@ function Images (imageModelPath) {
     this.oxfordLib = require('../lib/oxford');
 }
 
-//var Image = require('../models/image');
-//var Oxfordlib = require('../lib/oxford');
-
 /**
  * Checks wether a document has all the emotion stored and, if not, tries to access them
  * If there aren't any faces/emotions in the image the document will be drop from the DB
@@ -22,10 +19,15 @@ function Images (imageModelPath) {
  * @returns {undefined}
  */
 Images.prototype.checkDocument = function (document, callback) {
+    if (!document || !document._doc) {
+        callback ("Invalid document", undefined); 
+        return;
+    }
     
     var extractedImage = document._doc;
-    if (extractedImage.mainemotion) {
+    if (extractedImage.mainemotion && extractedImage.emotions) {
         callback (false, extractedImage);
+        return;
     }
     
     this.oxfordLib.recognizeImageB64(extractedImage.image, function(error, emotions){
@@ -44,6 +46,7 @@ Images.prototype.checkDocument = function (document, callback) {
                 }
             );
             callback (true, undefined);
+            return;
         }
         
         //Update the image in the DB with emotions
@@ -54,7 +57,8 @@ Images.prototype.checkDocument = function (document, callback) {
             {new: true},
             function (error, result) {
                 console.log("checkDocument: Emotion detected " + mainEmotion + "- ID ("+ extractedImage._id +") UPDATED IN DATABASE. Error: "+ error);
-                return (false, result);
+                callback (false, result);
+                return;
             }
         );
         
@@ -131,7 +135,7 @@ Images.prototype._checkRequest = function (request)
  * @returns {undefined}
  */
 Images.prototype.addImage = function(req, res) {
-    var validRequest = _checkRequest(req);
+    var validRequest = this._checkRequest(req);
     
     if (!validRequest) {
         console.log("addImage: Invalid request");
