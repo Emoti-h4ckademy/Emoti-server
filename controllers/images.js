@@ -115,9 +115,9 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
 }
 
 /**
- * 
- * @param {type} queryLimit
- * @param {type} callback
+ * Retrieves images with emotions from the DB
+ * @param {type} queryLimit - Maximum number of images to analyze (0 for All)
+ * @param {type} callback (error, Documents)
  * @returns {undefined}
  */
 Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
@@ -130,6 +130,15 @@ Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
         }
     );
 };
+
+//Images.prototype.getImageByMonth = function (month, callback) {
+//    this.imageDB.find({'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}},
+//        'username mainemotion emotions date',
+//        {$sort: { 'date' : 'ascending' } },function (err, images) {
+//        console.log("Number of images: " + images) // Space Ghost is a talk show host.
+//        callback(err, images);
+//    });
+//};
 
 /**
  * Checks wether a request to the addImage function is valid
@@ -219,15 +228,6 @@ Images.prototype.addImage = function(req, res) {
         }
     });
 
-};
-
-Images.prototype.getImageByMonth = function (month, callback) {
-    this.imageDB.find({'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}},
-        'username mainemotion emotions date',
-        {$sort: { 'date' : 'ascending' } },function (err, images) {
-        console.log("Number of images: " + images) // Space Ghost is a talk show host.
-        callback(err, images);
-    });
 };
 
 /*!
