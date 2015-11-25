@@ -10,7 +10,7 @@ describe("Controllers: images - checkRequest", function() {
             method: 'POST',
             url: '/api/images'
         });
-        var body = { "image": "aaaaa", "username": "prueba", "date":"lun. nov. 23 13:10:23 2015"}
+        var body = { "image": "aaaaa", "username": "prueba", "date":"lun. nov. 23 13:10:23 2015"};
         myRequest._setBody (body);
         myRequest.headers['content-type'] = 'application/json';
     });
@@ -36,7 +36,7 @@ describe("Controllers: images - checkRequest", function() {
             method: 'GET',
             url: '/api/images'
         });
-        var body = { "image": "aaaaa", "username": "prueba", "date":"lun. nov. 23 13:10:23 2015"}
+        var body = { "image": "aaaaa", "username": "prueba", "date":"lun. nov. 23 13:10:23 2015"};
         myRequest._setBody (body);
         myRequest.headers['content-type'] = 'application/json';
         var ok = ImageCtrl._checkRequest(myRequest);
@@ -50,7 +50,7 @@ describe("Controllers: images - checkRequest", function() {
     });
     
     it("Request without username", function() {
-        var body = { "image": "aaaaa", "date":"lun. nov. 23 13:10:23 2015"}
+        var body = { "image": "aaaaa", "date":"lun. nov. 23 13:10:23 2015"};
         myRequest._setBody (body);
         
         var ok = ImageCtrl._checkRequest(myRequest);
@@ -58,7 +58,7 @@ describe("Controllers: images - checkRequest", function() {
     });
     
     it("Request without image", function() {
-        var body = { "username": "prueba", "date":"lun. nov. 23 13:10:23 2015"}
+        var body = { "username": "prueba", "date":"lun. nov. 23 13:10:23 2015"};
         myRequest._setBody (body);
         
         var ok = ImageCtrl._checkRequest(myRequest);
@@ -68,8 +68,6 @@ describe("Controllers: images - checkRequest", function() {
 });
 
 describe("Controllers: images - checkDocument", function() {
-    var Mongoose = require('mongoose');
-    Mongoose.connect('localhost', 'jasmine');
     var ImageCtrl;
     console.log = function() {}; //Disable logs
     
@@ -111,7 +109,7 @@ describe("Controllers: images - checkDocument", function() {
             username:    "test",
             ip:          "127.0.0.1",
             date:        new Date(),
-            image:       "IMAGE",
+            image:       "IMAGE"
         });
         ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
             callback("Simulated error", ImageCtrl.oxfordLib.emptyResponse);
@@ -122,23 +120,77 @@ describe("Controllers: images - checkDocument", function() {
         });
     });
     
-    xit("Should call save when OK", function(done) {
+    it("Should call delete Document when no emotions are found", function(done) {
         
         var document = new ImageCtrl.imageDB({
             username:    "test",
             ip:          "127.0.0.1",
             date:        new Date(),
-            image:       "IMAGE",
+            image:       "IMAGE"
         });
-        //Sobrecribir save
+        //Ofxord returns that no emotion has been found
+        ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
+            callback(false, ImageCtrl.oxfordLib.emptyResponse);
+        };
+        
+        //Capture the call to the DB
+        var called = false;
+        ImageCtrl.imageDB.findOneAndRemove = function (id, options, callback) {
+            called = true;
+            callback (false, id);
+        };
+        
         ImageCtrl.checkDocument(document, function(error, newImage) {   
-           expect(error).toBeTruthy();
+           expect(error).toBeFalsy();
+           expect(newImage).toBeFalsy();
+           expect(called).toBeTruthy();
            done();
-        });
+        });      
     });
     
-    
-    
-    
+        
+    it("Should call update Document when new emotions are received and return the new image", function(done) {
+        
+        var document = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE"
+        });
+        
+        var updatedDocument = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE",
+            emotions:    "oldemotions",
+            mainemotion: "oldmainemotion"
+        });
+        
+        //Capture calls to oxford
+        ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
+            callback(false, "newemotions");
+        };
+        
+        ImageCtrl.oxfordLib.extractMainEmotion = function(emotions) {
+            return ("newmainemotion");
+        };
+        
+        //Capture the calls to the DB
+        ImageCtrl.imageDB.findOneAndUpdate = function (conditions, update, options, callback) {
+            console.log("My findOneAndUpdate: ");
+            //Should probably parse the update argument.
+            updatedDocument.emotions = "newemotions";
+            updatedDocument.mainemotion = "newmainemotion";
+            callback (false, updatedDocument);
+        };
+        
+        ImageCtrl.checkDocument(document, function(error, newImage) {   
+           expect(error).toBeFalsy();
+           expect(newImage.emotions).toBe("newemotions");
+           expect(newImage.mainemotion).toBe("newmainemotion");
+           done();
+        });      
+    });
     
 });

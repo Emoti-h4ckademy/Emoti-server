@@ -19,6 +19,8 @@ function Images (imageModelPath) {
  * @returns {undefined}
  */
 Images.prototype.checkDocument = function (document, callback) {
+    var self = this;
+    
     if (!document || !document._doc) {
         callback ("Invalid document", undefined); 
         return;
@@ -30,28 +32,29 @@ Images.prototype.checkDocument = function (document, callback) {
         return;
     }
     
-    this.oxfordLib.recognizeImageB64(extractedImage.image, function(error, emotions){
+    self.oxfordLib.recognizeImageB64(extractedImage.image, function(error, emotions){
         if (error) {
             console.log ("checkDocument: ERROR WITH OXFORD: " + error);
             callback (true, extractedImage);
+            return;
         }
-        
-        var mainEmotionObj = this.oxfordLib.extractMainEmotion(emotions);
-        if(mainEmotionObj == this.oxfordLib.emptyEmotion){
-            this.imageDB.findByIdAndRemove(
+
+        if(emotions == self.oxfordLib.emptyResponse){
+            self.imageDB.findOneAndRemove(
                 {'_id': extractedImage._id},
                 {},
                 function (error, result) {
                     console.log("checkDocument: No emotion detected - ID ("+ extractedImage._id +") DELETED FROM DATABASE. Error: "+ error);
+                    callback (error, undefined);
+                    return;
                 }
             );
-            callback (true, undefined);
-            return;
         }
         
         //Update the image in the DB with emotions
+        var mainEmotionObj = self.oxfordLib.extractMainEmotion(emotions);
         var mainEmotion = mainEmotionObj.emotion;
-        this.imageDB.findOneAndUpdate(
+        self.imageDB.findOneAndUpdate(
             {'_id': extractedImage._id}, 
             { $set: { emotions: emotions, mainemotion: mainEmotion}},
             {new: true},
