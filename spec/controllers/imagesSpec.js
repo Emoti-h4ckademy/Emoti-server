@@ -1,3 +1,5 @@
+console.log = function() {}; //Disable logs
+
 describe("Controllers: images - checkRequest", function() {
     
     var httpMocks = require('node-mocks-http');
@@ -68,26 +70,23 @@ describe("Controllers: images - checkRequest", function() {
 });
 
 describe("Controllers: images - checkDocument", function() {
-    var ImageCtrl;
-    console.log = function() {}; //Disable logs
+    var ImageCtrl = require('../../controllers/images');
     
-    beforeEach(function(){
-        ImageCtrl = require('../../controllers/images');
-    });
-    
-    it("Should fail with an empty document", function() {
+    it("Should fail with an empty document", function(done) {
         ImageCtrl.checkDocument(undefined, function(error, newImage) {
-            expect(error).toBeTruthy();           
+            expect(error).toBeTruthy();
+            done();
         });
     });
     
-    it("Should fail with sth that is not a document", function() {
+    it("Should fail with sth that is not a document", function(done) {
         ImageCtrl.checkDocument("Wolololo", function(error, newImage) {
-            expect(error).toBeTruthy();           
+            expect(error).toBeTruthy();  
+            done();
         });
     });
     
-    it("Should fail be OK with a complete document", function() {
+    it("Should fail be OK with a complete document", function(done) {
         
         var document = new ImageCtrl.imageDB({
             username:    "test",
@@ -99,7 +98,8 @@ describe("Controllers: images - checkDocument", function() {
         });
         
         ImageCtrl.checkDocument(document, function(error, newImage) {   
-           expect(error).toBeFalsy();           
+           expect(error).toBeFalsy();      
+           done();
         });
     });
     
@@ -111,11 +111,15 @@ describe("Controllers: images - checkDocument", function() {
             date:        new Date(),
             image:       "IMAGE"
         });
+        
+        var oldOxfordLibrary = ImageCtrl.oxfordLib.recognizeImageB64.bind({});
+        
         ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
             callback("Simulated error", ImageCtrl.oxfordLib.emptyResponse);
         };
         ImageCtrl.checkDocument(document, function(error, newImage) {   
            expect(error).toBeTruthy();
+           ImageCtrl.oxfordLib.recognizeImageB64 = oldOxfordLibrary.bind({});
            done();
         });
     });
@@ -128,13 +132,16 @@ describe("Controllers: images - checkDocument", function() {
             date:        new Date(),
             image:       "IMAGE"
         });
+        
         //Ofxord returns that no emotion has been found
+        var oldOxfordLibrary = ImageCtrl.oxfordLib.recognizeImageB64.bind({});
         ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
             callback(false, ImageCtrl.oxfordLib.emptyResponse);
         };
         
         //Capture the call to the DB
         var called = false;
+        var oldFindOne = ImageCtrl.imageDB.findOneAndRemove.bind({});
         ImageCtrl.imageDB.findOneAndRemove = function (id, options, callback) {
             called = true;
             callback (false, id);
@@ -144,6 +151,8 @@ describe("Controllers: images - checkDocument", function() {
            expect(error).toBeFalsy();
            expect(newImage).toBeFalsy();
            expect(called).toBeTruthy();
+           ImageCtrl.oxfordLib.recognizeImageB64 = oldOxfordLibrary.bind({});
+           ImageCtrl.imageDB.findOneAndRemove = oldFindOne.bind({});
            done();
         });      
     });
@@ -157,18 +166,22 @@ describe("Controllers: images - checkDocument", function() {
             image:       "IMAGE"
         });
         //Ofxord returns that no emotion has been found
+        var oldOxfordLibrary = ImageCtrl.oxfordLib.recognizeImageB64.bind({});
         ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
             callback(false, ImageCtrl.oxfordLib.emptyResponse);
         };
         
         //Capture the call to the DB
+        var oldFineOne = ImageCtrl.imageDB.findOneAndRemove.bind({});
         ImageCtrl.imageDB.findOneAndRemove = function (id, options, callback) {
-            callback ("Down", document);
+            callback ("Down trolololo", document);
         };
         
         ImageCtrl.checkDocument(document, function(error, newImage) {   
            expect(error).toBeTruthy()
            expect(newImage).toBe(document);
+           ImageCtrl.oxfordLib.recognizeImageB64 = oldOxfordLibrary.bind({});
+           ImageCtrl.imageDB.findOneAndRemove = oldFineOne.bind({});
            done();
         });      
     });
@@ -192,15 +205,18 @@ describe("Controllers: images - checkDocument", function() {
         });
         
         //Capture calls to oxford
+        var oldOxfordRecognize = ImageCtrl.oxfordLib.recognizeImageB64.bind({});
         ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
             callback(false, "newemotions");
         };
         
+        var oldOxfordExtract = ImageCtrl.oxfordLib.extractMainEmotion.bind({});
         ImageCtrl.oxfordLib.extractMainEmotion = function(emotions) {
             return ("newmainemotion");
         };
         
         //Capture the calls to the DB
+        var oldFindOne = ImageCtrl.imageDB.findOneAndUpdate.bind({});
         ImageCtrl.imageDB.findOneAndUpdate = function (conditions, update, options, callback) {
             console.log("My findOneAndUpdate: ");
             //Should probably parse the update argument.
@@ -213,6 +229,9 @@ describe("Controllers: images - checkDocument", function() {
            expect(error).toBeFalsy();
            expect(newImage.emotions).toBe("newemotions");
            expect(newImage.mainemotion).toBe("newmainemotion");
+           ImageCtrl.oxfordLib.recognizeImageB64 = oldOxfordRecognize.bind({});
+           ImageCtrl.oxfordLib.extractMainEmotion = oldOxfordExtract.bind({});
+           ImageCtrl.imageDB.findOneAndUpdate = oldFindOne.bind({});          
            done();
         });      
     });
@@ -228,22 +247,28 @@ describe("Controllers: images - checkDocument", function() {
         });
         
         //Capture calls to oxford
+        var oldOxfordRecognize = ImageCtrl.oxfordLib.recognizeImageB64.bind({});
         ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
             callback(false, "newemotions");
         };
         
+        var oldOxfordExtract = ImageCtrl.oxfordLib.extractMainEmotion.bind({});
         ImageCtrl.oxfordLib.extractMainEmotion = function(emotions) {
             return ("newmainemotion");
         };
         
         //Capture the calls to the DB
+        var oldFindOne = ImageCtrl.imageDB.findOneAndUpdate.bind({});
         ImageCtrl.imageDB.findOneAndUpdate = function (conditions, update, options, callback) {
-            callback("Down", undefined);
+            callback("Down TROLL", undefined);
         };
         
         ImageCtrl.checkDocument(document, function(error, newImage) {   
            expect(error).toBeTruthy();
            expect(newImage).toBe(document);
+           ImageCtrl.oxfordLib.recognizeImageB64 = oldOxfordRecognize.bind({});
+           ImageCtrl.oxfordLib.extractMainEmotion = oldOxfordExtract.bind({});
+           ImageCtrl.imageDB.findOneAndUpdate = oldFindOne.bind({});
            done();
         });      
     });
@@ -251,22 +276,84 @@ describe("Controllers: images - checkDocument", function() {
 });
 
 describe("Controllers: images - updateImagesWithoutEmotions", function() {
-    var ImageCtrl;
+    var ImageCtrl = require('../../controllers/images');
+    var DocumentBasic;
+    var DocumentBasicEmotions;
+    var DocumentBasicMainEmotion;
+    var DocumentFull;
     
-    beforeEach(function(){
-        ImageCtrl = require('../../controllers/images');
+    beforeEach(function(done){        
+        DocumentBasic = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE"
+        });
+        
+        DocumentFull = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE",
+            emotions:    "emotions",
+            mainemotion: "mainemotion"
+        });
+        
+        DocumentBasicEmotions = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE",
+            mainemotion: "mainemotion"
+        });
+        
+        DocumentBasicMainEmotion = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE",
+            mainemotion: "mainemotion"
+        });
+        
+        done();
+        
     });
     
-    it("Return error if the DB fails", function() {
+    it("Return error if the DB fails", function(done) {
+        var oldFind = ImageCtrl.imageDB.find.bind({});
         ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
             callback ("Error", undefined);
-        }
+        };
         
         ImageCtrl.updateImagesWithoutEmotions(0, function (error, documents) {
             expect(error).toBeTruthy();
+            ImageCtrl.imageDB.find = oldFind.bind({});
+            done();
         });
-        
     });
     
+    it("Calls checkDocument for every document returned", function(done) {
+        var oldFind = ImageCtrl.imageDB.find.bind({});
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            console.log("my find");
+            callback (false, [DocumentBasic, DocumentBasic, DocumentBasic]);
+        };
+        
+        var calls = 0;
+        var oldCheck = ImageCtrl.checkDocument.bind({});
+        ImageCtrl.checkDocument = function (document, callback) {
+            console.log("my document");
+            calls = calls +1;
+            callback(false, document);
+        };
+        
+        ImageCtrl.updateImagesWithoutEmotions(0, function (error, documents) {
+            expect(calls).toBe(3);
+            ImageCtrl.imageDB.find = oldFind.bind({});
+            ImageCtrl.checkDocument = oldCheck.bind({});
+            done();
+            
+        });
+    });
     
 });
