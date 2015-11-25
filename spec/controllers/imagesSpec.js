@@ -148,8 +148,32 @@ describe("Controllers: images - checkDocument", function() {
         });      
     });
     
+    it("Should return error and the old document if the DB is down upong deleting a document", function(done) {
         
-    it("Should call update Document when new emotions are received and return the new image", function(done) {
+        var document = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE"
+        });
+        //Ofxord returns that no emotion has been found
+        ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
+            callback(false, ImageCtrl.oxfordLib.emptyResponse);
+        };
+        
+        //Capture the call to the DB
+        ImageCtrl.imageDB.findOneAndRemove = function (id, options, callback) {
+            callback ("Down", document);
+        };
+        
+        ImageCtrl.checkDocument(document, function(error, newImage) {   
+           expect(error).toBeTruthy()
+           expect(newImage).toBe(document);
+           done();
+        });      
+    });
+    
+        it("Should return error and he old document should be returned", function(done) {
         
         var document = new ImageCtrl.imageDB({
             username:    "test",
@@ -192,5 +216,57 @@ describe("Controllers: images - checkDocument", function() {
            done();
         });      
     });
+    
+        
+    it("Should return error and he old document if the DB fails upon updating", function(done) {
+        
+        var document = new ImageCtrl.imageDB({
+            username:    "test",
+            ip:          "127.0.0.1",
+            date:        new Date(),
+            image:       "IMAGE"
+        });
+        
+        //Capture calls to oxford
+        ImageCtrl.oxfordLib.recognizeImageB64 = function(imageB64, callback) {
+            callback(false, "newemotions");
+        };
+        
+        ImageCtrl.oxfordLib.extractMainEmotion = function(emotions) {
+            return ("newmainemotion");
+        };
+        
+        //Capture the calls to the DB
+        ImageCtrl.imageDB.findOneAndUpdate = function (conditions, update, options, callback) {
+            callback("Down", undefined);
+        };
+        
+        ImageCtrl.checkDocument(document, function(error, newImage) {   
+           expect(error).toBeTruthy();
+           expect(newImage).toBe(document);
+           done();
+        });      
+    });
+    
+});
+
+describe("Controllers: images - updateImagesWithoutEmotions", function() {
+    var ImageCtrl;
+    
+    beforeEach(function(){
+        ImageCtrl = require('../../controllers/images');
+    });
+    
+    it("Return error if the DB fails", function() {
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            callback ("Error", undefined);
+        }
+        
+        ImageCtrl.updateImagesWithoutEmotions(0, function (error, documents) {
+            expect(error).toBeTruthy();
+        });
+        
+    });
+    
     
 });

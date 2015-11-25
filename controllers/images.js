@@ -11,11 +11,15 @@ function Images (imageModelPath) {
 }
 
 /**
- * Checks wether a document has all the emotion stored and, if not, tries to access them
+ * Checks wether a document has all the emotion arguments stored and,
+ * if not, tries to retrieve them
+ * If the system cannot analyze the image it will do nothing
  * If there aren't any faces/emotions in the image the document will be drop from the DB
- * It there are emotion, the document will be updated in the DB
+ * It there are emotions, the document will be updated in the DB
  * @param {type} document As retrieved from the DB
- * @param {type} callback - Function to callback (error, newImage)
+ * @param {type} callback - Function to callback (error, Image)
+ *      Error: If there has been a problem during processing the image or storing in the DB
+ *      Image: The old image if it doesn't get modified or the new one if it does
  * @returns {undefined}
  */
 Images.prototype.checkDocument = function (document, callback) {
@@ -28,7 +32,7 @@ Images.prototype.checkDocument = function (document, callback) {
     
     var extractedImage = document._doc;
     if (extractedImage.mainemotion && extractedImage.emotions) {
-        callback (false, extractedImage);
+        callback (false, document);
         return;
     }
     
@@ -44,8 +48,16 @@ Images.prototype.checkDocument = function (document, callback) {
                 {'_id': extractedImage._id},
                 {},
                 function (error, result) {
-                    console.log("checkDocument: No emotion detected - ID ("+ extractedImage._id +") DELETED FROM DATABASE. Error: "+ error);
-                    callback (error, undefined);
+                    if (error) {
+                        console.log("checkDocument: Failed to delete in the db: " + error);
+                        callback(error, document);
+                        return;
+                    } else {
+                        console.log("checkDocument: No emotion detected - ID ("+ extractedImage._id +") deleted from db.");
+                        callback (error, undefined);
+                        return;
+                    }
+
                     return;
                 }
             );
@@ -59,9 +71,15 @@ Images.prototype.checkDocument = function (document, callback) {
             { $set: { emotions: emotions, mainemotion: mainEmotion}},
             {new: true},
             function (error, result) {
-                console.log("checkDocument: Emotion detected " + mainEmotion + "- ID ("+ extractedImage._id +") UPDATED IN DATABASE. Error: "+ error);
-                callback (false, result);
-                return;
+                if (error) {
+                    console.log("checkDocument: Failed to update document in the db: " + error);
+                    callback(error, document);
+                } else {
+                    console.log("checkDocument: Emotion detected " + mainEmotion + "- ID ("+ extractedImage._id + "). Updated in the DB");
+                    callback (false, result);
+                    return;
+                }
+
             }
         );
         
@@ -69,20 +87,25 @@ Images.prototype.checkDocument = function (document, callback) {
 }
 
 /**
- * 
- * @param {type} queryLimit
- * @param {type} callback
+ * Checks the DB for images without emotions stored and updates them
+ * Refet to checkDocument to know the final state of the images
+ * @param {type} queryLimit - Maximum number of images to analyze (0 for All)
+ * @param {type} callback (error, updatedDocuments)
  * @returns {undefined}
  */
 Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
     this.imageDB.find(
-        {"mainemotion" : { "$exists" : false }},
+        {$or: [ {"mainemotion" : { "$exists" : false }},
+                {"emotions" : { "$exists" : false }}
+              ]},
         {},
         { limit : queryLimit },
         function (err, documents) {
             if (!err) {
                 for (var iterator = 0; iterator < documents.length; iterator++) {
-                    checkDocument(documents[iterator]);
+                    checkDocument(documents[iterator], function (error, image) {
+                        if (!error) documents[iterator] = image;
+                    });
                 }
             }
 
