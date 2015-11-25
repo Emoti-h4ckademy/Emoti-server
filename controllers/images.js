@@ -94,7 +94,8 @@ Images.prototype.checkDocument = function (document, callback) {
  * @returns {undefined}
  */
 Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
-    this.imageDB.find(
+    var self = this;
+    self.imageDB.find(
         {$or: [ {"mainemotion" : { "$exists" : false }},
                 {"emotions" : { "$exists" : false }}
               ]},
@@ -103,7 +104,7 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
         function (err, documents) {
             if (!err) {
                 for (var iterator = 0; iterator < documents.length; iterator++) {
-                    checkDocument(documents[iterator], function (error, image) {
+                    self.checkDocument(documents[iterator], function (error, image) {
                         if (!error) documents[iterator] = image;
                     });
                 }
@@ -121,7 +122,8 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
  * @returns {undefined}
  */
 Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
-    this.imageDB.find(
+    var self = this;
+    self.imageDB.find(
         {$and: [ {"mainemotion" : { "$exists" : true }},
                 {"emotions" : { "$exists" : true }}
               ]},
@@ -172,7 +174,8 @@ Images.prototype._checkRequest = function (request)
  * @returns {undefined}
  */
 Images.prototype.addImage = function(req, res) {
-    var validRequest = this._checkRequest(req);
+    var self = this;
+    var validRequest = self._checkRequest(req);
     
     if (!validRequest) {
         console.log("addImage: Invalid request");
@@ -182,7 +185,7 @@ Images.prototype.addImage = function(req, res) {
     
     console.log("addImage: Petition from: " + req.ip + ". Username: " + req.body.username);
 
-    this.oxfordLib.recognizeImageB64(req.body.image, function(error, emotions){
+    self.oxfordLib.recognizeImageB64(req.body.image, function(error, emotions){
         
         var store;
         
@@ -199,9 +202,9 @@ Images.prototype.addImage = function(req, res) {
             
         } else {
             //Extract main emotion
-            var mainEmotionObj = this.oxfordLib.extractMainEmotion(emotions);
+            var mainEmotionObj = self.oxfordLib.extractMainEmotion(emotions);
 
-            if (mainEmotionObj === this.oxfordLib.emptyEmotion) {
+            if (mainEmotionObj === self.oxfordLib.emptyEmotion) {
                 console.log("addImage: No emotion detected");
                 res.status(400).send("No emotion detected in this image");
                 return;
@@ -211,7 +214,7 @@ Images.prototype.addImage = function(req, res) {
 
             console.log("addImage: Image recognition: " + mainEmotion + " (" + emotions + ")");
 
-            store = new this.imageDB({
+            store = new self.imageDB({
                 username:    req.body.username,
                 ip:          req.ip,
                 date:        new Date(),
