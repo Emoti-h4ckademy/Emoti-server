@@ -4,9 +4,8 @@
  * The exports object of the "images" module is an instance of this class.
  * Most apps will only use this one instance.
  */
-function Images (imageModelPath) {
-    imageModelPath = imageModelPath || '../models/image';
-    this.imageDB = require(imageModelPath);
+function Images () {
+    this.imageDB = require('../models/image');
     this.oxfordLib = require('../lib/oxford');
 }
 
@@ -84,7 +83,7 @@ Images.prototype.checkDocument = function (document, callback) {
         );
         
     });
-}
+};
 
 /**
  * Checks the DB for images without emotions stored and updates them
@@ -113,7 +112,7 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
             callback (err, documents);
         }
     );
-}
+};
 
 /**
  * Retrieves images with emotions from the DB
@@ -164,7 +163,7 @@ Images.prototype._checkRequest = function (request)
     }
     
     return true;
-}
+};
 
 /**
  * Receives a HTTP Request with an image and stores it in the DB.
@@ -197,7 +196,7 @@ Images.prototype.addImage = function(req, res) {
                 username:    req.body.username,
                 ip:          req.ip,
                 date:        new Date(),
-                image: 	     req.body.image,
+                image: 	     req.body.image
             });
             
         } else {
