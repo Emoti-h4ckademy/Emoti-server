@@ -122,7 +122,9 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
  */
 Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
     this.imageDB.find(
-        {"mainemotion" : { "$exists" : true }},
+        {$and: [ {"mainemotion" : { "$exists" : true }},
+                {"emotions" : { "$exists" : true }}
+              ]},
         {},
         { limit : queryLimit },
         function (err, images) {
