@@ -178,7 +178,7 @@ describe("Controllers: images - checkDocument", function() {
         };
         
         ImageCtrl.checkDocument(document, function(error, newImage) {   
-           expect(error).toBeTruthy()
+           expect(error).toBeTruthy();
            expect(newImage).toBe(document);
            ImageCtrl.oxfordLib.recognizeImageB64 = oldOxfordLibrary.bind({});
            ImageCtrl.imageDB.findOneAndRemove = oldFineOne.bind({});

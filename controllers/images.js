@@ -237,4 +237,4 @@ Images.prototype.addImage = function(req, res) {
 /*!
  * The exports object is an instance of Oxford.
  */
-var images = module.exports = exports = new Images;
+var images = module.exports = exports = new Images();
