@@ -54,7 +54,7 @@ var normalizedStackBar = function () {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.json("http://localhost:3000/api/charts", function(error, data) {
+    d3.json("/api/charts", function(error, data) {
         if (error) console.log("Error loading data: " + error);
 
         color.domain(d3.keys(data[0]).filter(function(key) { return key !== "State"; }));
@@ -92,11 +92,14 @@ var normalizedStackBar = function () {
             .attr("height", function(d) { return y(d.y0) - y(d.y1); })
             .style("fill", function(d) { return color(d.name); });
 
+        var xtrans = x.rangeBand() / 2;
+        xtrans = xtrans + 70;
+
         var legend = svg.select(".state:last-child").selectAll(".legend")
             .data(function(d) { return d.ages; })
             .enter().append("g")
             .attr("class", "legend")
-            .attr("transform", function(d) { return "translate(" + x.rangeBand() / 2 + "," + y((d.y0 + d.y1) / 2) + ")"; });
+            .attr("transform", function(d) { return "translate(" + xtrans + "," + y((d.y0 + d.y1) / 2) + ")"; });
 
         legend.append("line")
             .attr("x2", 10);
@@ -109,8 +112,125 @@ var normalizedStackBar = function () {
     });
 };
 
+function HighCharts (type) {
+    this.categories = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    this.series = [];
+    this.plotOptions = {
+        column: {
+            stacking: 'percent'
+        }
+    };
+    this.type = 'column';
+    this.mainTitle = 'Emotions for this user';
+    this.ytitle = 'Emotions';
+};
+
+HighCharts.prototype ={
+
+    area: function () {
+        this.type = 'area';
+        this.plotOptions = {
+            area: {
+                stacking: 'percent',
+                lineColor: '#ffffff',
+                lineWidth: 1,
+                marker: {
+                    lineWidth: 1,
+                    lineColor: '#ffffff'
+                }
+            }
+        };
+    },
+    bars: function () {
+        this.type = 'column';
+        this.plotOptions = {
+            column: {
+                stacking: 'percent'
+            }
+        };
+    },
+
+    retrieveData : function () {
+        $.ajax({
+            type: 'POST',
+            url: '/api/charts',
+            data: {  },
+            dataType: 'json',
+            success: function(data){
+                var responseContainer = $('.ajax-response-container' + buttonId);
+                //console.log(JSON.stringify(data.scores, null, ''));
+                var scores = JSON.stringify(data[0].scores);
+                responseContainer.html('<h2>' + data[0].emotion + '</h2>' +
+                    '<div style="max-width: 564px;"><p><pre>'+ scores +'</pre></p></div>');
+            },
+            error: function(xhr, type){
+                alert('AJAX response returned and error' + xhr + ' ' + type);
+            }
+        })
+    },
+
+    drawchart : function (type) {
+        type === 'area' ? this.area() : this.bars();
+        $('#highcharts').highcharts({
+            chart: {
+                type: this.type
+            },
+            title: {
+                text: this.mainTitle
+            },
+            xAxis: {
+                categories: this.categories
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: this.ytitle
+                }
+            },
+            tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                shared: true
+            },
+            plotOptions: this.plotOptions
+            ,
+            series: [{
+                name: 'Anger',
+                data: [5, 3, 4, 7, 2, 2, 2]
+            }, {
+                name: 'Contempt',
+                data: [2, 2, 3, 2, 1, 1, 1]
+            }, {
+                name: 'Disgust',
+                data: [3, 4, 4, 2, 5, 1, 1]
+            },
+            {
+                name: 'Fear',
+                data: [3, 4, 4, 2, 5, 5, 5]
+            },
+            {
+                name: 'Happiness',
+                data: [3, 4, 4, 2, 5, 5, 5]
+            },
+            {
+                name: 'Neutral',
+                data: [3, 4, 4, 2, 5, 5, 5]
+            },
+            {
+                name: 'Sadness',
+                data: [3, 4, 4, 2, 5, 5, 5]
+            },
+            {
+                name: 'Surprise',
+                data: [3, 4, 4, 2, 5, 5, 5]
+            }
+            ]
+        });
+    }
+}
 
 $(document).ready(function() {
     detectEmotionBtn();
     normalizedStackBar();
+    var c = new HighCharts();
+    c.drawchart();
 });
