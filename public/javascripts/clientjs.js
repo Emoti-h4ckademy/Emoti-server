@@ -3,6 +3,7 @@
  */
 
 var highChart;
+var highChart2;
 var seriesWeek;
 var seriesDemoPie;
 var colors = {
@@ -12,7 +13,8 @@ var colors = {
     contempt: '#29245C',
     disgust: '#2FAD66',
     sadness: '#29245C',
-    surprise: '#652483'
+    surprise: '#652483',
+    fear: '#3A2483'
 }
 
 var detectEmotionBtn = function (){
@@ -47,7 +49,7 @@ var getDataForWeek = function () {
         success: function(data){
             highChart = new HighCharts();
             highChart.series = highChart.parseData(data);
-            highChart.drawchart();
+            highChart.drawChartWeek();
             $( "text:contains('Highcharts.com')" ).css( "display", "none" );
         },
         error: function(xhr, type){
@@ -63,10 +65,9 @@ var getDataForDemo = function () {
         data: {  },
         dataType: 'json',
         success: function(data){
-            highChart = new HighCharts();
-            highChart.series = highChart.parseData(data);
-            highChart.drawChartWeek();
-            highChart.drawDemoPie();
+            highChart2 = new HighCharts();
+            highChart2.series;
+            highChart2.drawDemoPie(data);
             $( "text:contains('Highcharts.com')" ).css( "display", "none" );
         },
         error: function(xhr, type){
@@ -146,7 +147,7 @@ HighCharts.prototype ={
         });
     },
 
-    drawDemoPie: function (){
+    drawDemoPie: function (data){
         $('#demopie').highcharts({
             chart: {
                 plotBackgroundColor: null,
@@ -174,26 +175,32 @@ HighCharts.prototype ={
                 }
             },
             series: [{
-                name: 'Brands',
+                name: 'Emotions today',
                 colorByPoint: true,
                 data: [{
-                    name: 'Microsoft Internet Explorer',
-                    y: 56.33
+                    name: 'Anger',
+                    y: data[0]['anger']
                 }, {
-                    name: 'Chrome',
-                    y: 24.03
+                    name: 'contempt',
+                    y: data[0]['contempt']
                 }, {
-                    name: 'Firefox',
-                    y: 10.38
+                name: 'disgust',
+                    y: data[0]['disgust']
                 }, {
-                    name: 'Safari',
-                    y: 4.77
+                name: 'fear',
+                    y: data[0]['fear']
                 }, {
-                    name: 'Opera',
-                    y: 0.91
+                name: 'happiness',
+                    y: data[0]['happiness']
                 }, {
-                    name: 'Proprietary or Undetectable',
-                    y: 0.2
+                name: 'neutral',
+                    y: data[0]['neutral']
+                }, {
+                name: 'sadness',
+                    y: data[0]['sadness']
+                }, {
+                name: 'surprise',
+                    y: data[0]['surprise']                    
                 }]
             }]
         });
@@ -216,6 +223,7 @@ HighCharts.prototype ={
             neutralArray.push(data[i].happiness);
             sadnessArray.push(data[i].sadness);
             surpriseArray.push(data[i].surprise);
+            fearArray.push(data[i].fear)
         }
         series.push({name : 'Anger', data : angerArray, color : colors.anger});
         series.push({name : 'Contempt', data : contemptArray, color : colors.contempt});
@@ -224,6 +232,7 @@ HighCharts.prototype ={
         series.push({name : 'Netural', data : neutralArray, color : colors.neutral});
         series.push({name : 'Sadness' , data : sadnessArray, color : colors.sadness});
         series.push({name : 'Surprise', data : surpriseArray, color : colors.surprise});
+        series.push({name : 'Fear', data : fearArray, color : colors.fear});
 
         seriesWeek =  series;
         return seriesWeek;
