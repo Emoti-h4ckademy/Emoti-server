@@ -218,3 +218,14 @@ exports.getImageByMonth = function (month, callback) {
         callback(err, images);
     });
 };
+
+exports.getImagesbyUsername = function(queryLimit, username, callback) {
+        Image.find(
+        {'username' : username},
+        {},
+        { sort: [['date', 'desc']] },
+        function (err, images) {
+            callback(err, images);
+        }
+    );
+};

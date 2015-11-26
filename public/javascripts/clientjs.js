@@ -3,6 +3,7 @@
  */
 
 var highChart;
+var demoChart;
 var seriesWeek;
 var seriesDemoPie;
 var colors = {
@@ -12,8 +13,22 @@ var colors = {
     contempt: '#29245C',
     disgust: '#2FAD66',
     sadness: '#29245C',
-    surprise: '#652483'
-}
+    surprise: '#652483',
+    fear: '#2C3E50'
+};
+
+var parsePieData = function (object) {
+    var result = [];
+    var emObj;
+    for (key in object) {
+        emObj = {};
+        emObj.name= key;
+        emObj.y = object[key];
+        emObj.color = colors[key];
+        result.push(emObj);
+    }
+    return result;
+};
 
 var detectEmotionBtn = function (){
     var retrieverBtn = $('button.emotion-retriever');
@@ -47,7 +62,7 @@ var getDataForWeek = function () {
         success: function(data){
             highChart = new HighCharts();
             highChart.series = highChart.parseData(data);
-            highChart.drawchart();
+            highChart.drawChartWeek();
             $( "text:contains('Highcharts.com')" ).css( "display", "none" );
         },
         error: function(xhr, type){
@@ -59,14 +74,13 @@ var getDataForWeek = function () {
 var getDataForDemo = function () {
     $.ajax({
         type: 'GET',
-        url: '/api/charts',
+        url: '/api/charts/demo',
         data: {  },
         dataType: 'json',
         success: function(data){
-            highChart = new HighCharts();
-            highChart.series = highChart.parseData(data);
-            highChart.drawChartWeek();
-            highChart.drawDemoPie();
+            demoChart = new HighCharts();
+            demoChart.series = demoChart.parseDataDemo(data)
+            demoChart.drawDemoPie();
             $( "text:contains('Highcharts.com')" ).css( "display", "none" );
         },
         error: function(xhr, type){
@@ -173,29 +187,7 @@ HighCharts.prototype ={
                     }
                 }
             },
-            series: [{
-                name: 'Brands',
-                colorByPoint: true,
-                data: [{
-                    name: 'Microsoft Internet Explorer',
-                    y: 56.33
-                }, {
-                    name: 'Chrome',
-                    y: 24.03
-                }, {
-                    name: 'Firefox',
-                    y: 10.38
-                }, {
-                    name: 'Safari',
-                    y: 4.77
-                }, {
-                    name: 'Opera',
-                    y: 0.91
-                }, {
-                    name: 'Proprietary or Undetectable',
-                    y: 0.2
-                }]
-            }]
+            series: seriesDemoPie
         });
     },
     parseData: function (data) {
@@ -216,6 +208,7 @@ HighCharts.prototype ={
             neutralArray.push(data[i].happiness);
             sadnessArray.push(data[i].sadness);
             surpriseArray.push(data[i].surprise);
+            fearArray.push(data[i].fear);
         }
         series.push({name : 'Anger', data : angerArray, color : colors.anger});
         series.push({name : 'Contempt', data : contemptArray, color : colors.contempt});
@@ -224,16 +217,24 @@ HighCharts.prototype ={
         series.push({name : 'Netural', data : neutralArray, color : colors.neutral});
         series.push({name : 'Sadness' , data : sadnessArray, color : colors.sadness});
         series.push({name : 'Surprise', data : surpriseArray, color : colors.surprise});
+        series.push({name : 'Fear', data : surpriseArray, color : colors.surprise});
 
         seriesWeek =  series;
         return seriesWeek;
+    },
+    parseDataDemo: function (data) {
+        var series = [];
+        var object = data[0];
+        var emObj;
+
+        series.push(
+            {name: 'Emotions',
+            colorByPoint: true,
+            data: parsePieData(object)});
+
+        seriesDemoPie = series;
     }
 }
 
 
 
-$(document).ready(function() {
-    detectEmotionBtn();
-    getDataForWeek();
-    getDataForDemo();
-});
