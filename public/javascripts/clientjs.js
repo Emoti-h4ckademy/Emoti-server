@@ -3,7 +3,8 @@
  */
 
 var highChart;
-var seriesGlobal;
+var seriesWeek;
+var seriesDemoPie;
 var colors = {
     neutral: '#F9B234',
     anger: '#BF1522',
@@ -37,7 +38,7 @@ var detectEmotionBtn = function (){
     });
 };
 
-var getDataForCharts = function () {
+var getDataForWeek = function () {
     $.ajax({
         type: 'GET',
         url: '/api/charts',
@@ -47,6 +48,25 @@ var getDataForCharts = function () {
             highChart = new HighCharts();
             highChart.series = highChart.parseData(data);
             highChart.drawchart();
+            $( "text:contains('Highcharts.com')" ).css( "display", "none" );
+        },
+        error: function(xhr, type){
+            alert('AJAX response returned and error' + xhr + ' ' + type);
+        }
+    });
+};
+
+var getDataForDemo = function () {
+    $.ajax({
+        type: 'GET',
+        url: '/api/charts',
+        data: {  },
+        dataType: 'json',
+        success: function(data){
+            highChart = new HighCharts();
+            highChart.series = highChart.parseData(data);
+            highChart.drawChartWeek();
+            highChart.drawDemoPie();
             $( "text:contains('Highcharts.com')" ).css( "display", "none" );
         },
         error: function(xhr, type){
@@ -98,7 +118,7 @@ HighCharts.prototype ={
         };
     },
 
-    drawchart : function (type, seriesValues) {
+    drawChartWeek : function (type, seriesValues) {
         type === 'area' ? this.area() : this.bars();
         $('#highcharts').highcharts({
             chart: {
@@ -123,6 +143,59 @@ HighCharts.prototype ={
             plotOptions: this.plotOptions
             ,
             series: this.series
+        });
+    },
+
+    drawDemoPie: function (){
+        $('#demopie').highcharts({
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Emotions of Demo Day attendees'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                        style: {
+                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                        }
+                    }
+                }
+            },
+            series: [{
+                name: 'Brands',
+                colorByPoint: true,
+                data: [{
+                    name: 'Microsoft Internet Explorer',
+                    y: 56.33
+                }, {
+                    name: 'Chrome',
+                    y: 24.03
+                }, {
+                    name: 'Firefox',
+                    y: 10.38
+                }, {
+                    name: 'Safari',
+                    y: 4.77
+                }, {
+                    name: 'Opera',
+                    y: 0.91
+                }, {
+                    name: 'Proprietary or Undetectable',
+                    y: 0.2
+                }]
+            }]
         });
     },
     parseData: function (data) {
@@ -152,12 +225,15 @@ HighCharts.prototype ={
         series.push({name : 'Sadness' , data : sadnessArray, color : colors.sadness});
         series.push({name : 'Surprise', data : surpriseArray, color : colors.surprise});
 
-        seriesGlobal =  series;
-        return seriesGlobal;
+        seriesWeek =  series;
+        return seriesWeek;
     }
 }
 
+
+
 $(document).ready(function() {
     detectEmotionBtn();
-    getDataForCharts();
+    getDataForWeek();
+    getDataForDemo();
 });
