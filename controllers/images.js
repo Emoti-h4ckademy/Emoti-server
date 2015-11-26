@@ -246,6 +246,35 @@ Images.prototype.addImage = function(req, res) {
 
 };
 
+Images.prototype.getImagesbyUsername = function(queryLimit, username, callback) {
+    var self = this;
+    self.imageDB.find(
+        {'username' : username},
+        {},
+        { sort: [['date', 'desc']] },
+        function (err, images) {
+            callback(err, images);
+        }
+    );
+};
+
+Images.prototype.getImageByMonth = function (month, callback) {
+    var self = this;
+    self.imageDB.find(
+        {$and: [ {"mainemotion" : { "$exists" : true }},
+                {"emotions" : { "$exists" : true }},
+                {'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}}
+              ]},
+        'username mainemotion emotions date',
+        {$sort: { 'date' : 'ascending' } },
+        function (err, images) {
+            console.log("Number of images: " + images) // Space Ghost is a talk show host.
+            callback(err, images);
+        }
+    );
+};
+
+
 /*!
  * The exports object is an instance of Oxford.
  */

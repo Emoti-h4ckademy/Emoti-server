@@ -1,6 +1,6 @@
 var express       = require('express');
 var path          = require('path');
-//var favicon       = require('serve-favicon');
+var favicon       = require('serve-favicon');
 var logger        = require('morgan');
 var cookieParser  = require('cookie-parser');
 var bodyParser    = require('body-parser');
@@ -11,6 +11,8 @@ var exphbs        = require('express-handlebars');
 
 var app = express(),
     dev = app.get('env') === 'development' || 'demo';
+
+//app.set('env', 'demo');
 
 app.use(bodyParser.json({limit: '2mb'}));
 app.use(bodyParser.urlencoded({limit: '2mb', extended: true}));
@@ -62,7 +64,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Middlewares
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 //app.use(methodOverride());
 app.use(logger(dev ? 'dev' : {
   stream: require('fs').createWriteStream('log')
@@ -82,9 +84,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 var routes = require('./routes/index');
 var images = require('./routes/api/images');
+var charts = require('./routes/api/charts');
 
 app.use('/', routes);
 app.use('/api/images/', images);
+app.use('/api/charts/', charts);
 
 //var open = require('open');
 //open("http://localhost:3000/show-images");

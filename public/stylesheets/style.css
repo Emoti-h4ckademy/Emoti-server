@@ -1,3 +1,19 @@
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges; }
+
+.bar {
+  fill: steelblue; }
+
+.x.axis path {
+  display: none; }
+
+.legend line {
+  stroke: #000;
+  shape-rendering: crispEdges; }
+
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   padding-top: 65px; }
@@ -19,5 +35,8 @@ a {
 .whats-emoti-text {
   max-width: 364px;
   line-height: 1.8em; }
+
+g.highcharts-axis-labels.highcharts-yaxis-labels {
+  display: none; }
 
 /*# sourceMappingURL=style.css.map */
