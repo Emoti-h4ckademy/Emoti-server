@@ -8,7 +8,7 @@ var TestUtils = require('../../lib/test/testUtils');
 
 
 /* GET charts listing. */
-router.get('/', function(req, res) {
+router.get('/week', function(req, res) {
     var month = new Date().getMonth();
 
     ImageCtrl.getImageByMonth(month, function(err, images){
@@ -30,6 +30,26 @@ router.get('/', function(req, res) {
             }
             data.push(resultObj);
         }
+
+        res.json(data);
+    });
+
+    //res.json(data);
+});
+
+router.get('/demo', function(req, res) {
+    var month = new Date().getMonth();
+    
+    ImageCtrl.getImagesbyUsernameDemo(0, "Demo", function(err, images){
+        var data = [];
+        var resultObj = {"anger" : 0, "contempt" : 0, "disgust" : 0, "fear" : 0, "happiness" : 0, "neutral" : 0, "sadness" : 0, "surprise" : 0 };
+        for (var i = 0; i < images.length; i++) {
+            if (resultObj[images[i].mainemotion] >= 0)
+                resultObj[images[i].mainemotion]++;
+        }
+        
+        console.log(resultObj);
+        data.push(resultObj);
 
         res.json(data);
     });

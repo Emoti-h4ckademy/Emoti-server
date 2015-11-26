@@ -249,7 +249,22 @@ Images.prototype.addImage = function(req, res) {
 Images.prototype.getImagesbyUsername = function(queryLimit, username, callback) {
     var self = this;
     self.imageDB.find(
-        {'username' : username},
+        {$and: [ {"mainemotion" : { "$exists" : true }},
+                {"emotions" : { "$exists" : true }},
+                {'username' : username}
+              ]},
+        {},
+        { sort: [['date', 'desc']] },
+        function (err, images) {
+            callback(err, images);
+        }
+    );
+};
+
+Images.prototype.getImagesbyUsernameDemo = function(queryLimit, username, callback) {
+    var self = this;
+    self.imageDB.find(
+        {'username' : "Demo"},
         {},
         { sort: [['date', 'desc']] },
         function (err, images) {
