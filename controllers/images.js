@@ -134,6 +134,18 @@ Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
     );
 };
 
+Images.prototype.getImagesbyUsername = function(queryLimit, username, callback) {
+    var self = this;
+    self.imageDB.find(
+        {'username' : username},
+        {},
+        { sort: [['date', 'desc']] },
+        function (err, images) {
+            callback(err, images);
+        }
+    );
+};
+
 //Images.prototype.getImageByMonth = function (month, callback) {
 //    this.imageDB.find({'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}},
 //        'username mainemotion emotions date',

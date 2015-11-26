@@ -26,7 +26,7 @@ describe("Controllers: images - checkRequest", function() {
         var ok = ImageCtrl._checkRequest(myRequest);
         expect(ok).toBeTruthy();
     });
-    
+   
     it("Request without body should fail", function() {
         myRequest._setBody({});
         var ok = ImageCtrl._checkRequest(myRequest);

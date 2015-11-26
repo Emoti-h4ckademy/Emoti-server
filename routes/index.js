@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/show-images', function(req, res) {
-    ImageCtrl.getImagesStoredWithEmotions(0, function(error, allImages){
+    ImageCtrl.getImagesbyUsername(0, "Demo", function(error, allImages){
     res.render('images',
         {
           myimages : allImages/*,
