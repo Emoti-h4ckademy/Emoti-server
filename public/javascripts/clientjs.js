@@ -2,6 +2,8 @@
  * Created by Carlos on 16/11/15.
  */
 
+var highChart;
+
 var detectEmotionBtn = function (){
     var retrieverBtn = $('button.emotion-retriever');
     retrieverBtn.on('click', function(){
@@ -25,7 +27,7 @@ var detectEmotionBtn = function (){
     });
 };
 
-var normalizedStackBar = function () {
+/*var normalizedStackBar = function () {
     var margin = {top: 20, right: 100, bottom: 30, left: 40},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
@@ -110,6 +112,23 @@ var normalizedStackBar = function () {
             .text(function(d) { return d.name; });
 
     });
+};*/
+
+var getDataForCharts = function () {
+    $.ajax({
+        type: 'GET',
+        url: '/api/charts',
+        data: {  },
+        dataType: 'json',
+        success: function(data){
+            //parseDataForHighCharts(data);
+            highChart.parseData(data);
+            highChart.drawchart('area');
+        },
+        error: function(xhr, type){
+            alert('AJAX response returned and error' + xhr + ' ' + type);
+        }
+    });
 };
 
 function HighCharts (type) {
@@ -123,9 +142,14 @@ function HighCharts (type) {
     this.type = 'column';
     this.mainTitle = 'Emotions for this user';
     this.ytitle = 'Emotions';
+    this.series = [];
+    var self = this;
 };
 
 HighCharts.prototype ={
+    print: function(){
+      console.log('Hello from Highcharts object');
+    },
 
     area: function () {
         this.type = 'area';
@@ -148,25 +172,6 @@ HighCharts.prototype ={
                 stacking: 'percent'
             }
         };
-    },
-
-    retrieveData : function () {
-        $.ajax({
-            type: 'POST',
-            url: '/api/charts',
-            data: {  },
-            dataType: 'json',
-            success: function(data){
-                var responseContainer = $('.ajax-response-container' + buttonId);
-                //console.log(JSON.stringify(data.scores, null, ''));
-                var scores = JSON.stringify(data[0].scores);
-                responseContainer.html('<h2>' + data[0].emotion + '</h2>' +
-                    '<div style="max-width: 564px;"><p><pre>'+ scores +'</pre></p></div>');
-            },
-            error: function(xhr, type){
-                alert('AJAX response returned and error' + xhr + ' ' + type);
-            }
-        })
     },
 
     drawchart : function (type) {
@@ -194,15 +199,15 @@ HighCharts.prototype ={
             plotOptions: this.plotOptions
             ,
             series: [{
-                name: 'Anger',
-                data: [5, 3, 4, 7, 2, 2, 2]
-            }, {
-                name: 'Contempt',
-                data: [2, 2, 3, 2, 1, 1, 1]
-            }, {
-                name: 'Disgust',
-                data: [3, 4, 4, 2, 5, 1, 1]
-            },
+            name: 'Anger',
+            data: [5, 3, 4, 7, 2, 2, 2]
+        }, {
+            name: 'Contempt',
+            data: [2, 2, 3, 2, 1, 1, 1]
+        }, {
+            name: 'Disgust',
+            data: [3, 4, 4, 2, 5, 1, 1]
+        },
             {
                 name: 'Fear',
                 data: [3, 4, 4, 2, 5, 5, 5]
@@ -223,14 +228,44 @@ HighCharts.prototype ={
                 name: 'Surprise',
                 data: [3, 4, 4, 2, 5, 5, 5]
             }
-            ]
+        ]
         });
+    },
+    parseData: function (data) {
+        var series = [];
+        var angerArray = [];
+        var contemptArray = [];
+        var disgustArray = [];
+        var fearArray = [];
+        var happinessArray = [];
+        var neutralArray = [];
+        var sadnessArray = [];
+        var surpriseArray = [];
+        for(var i = 0; i < data.length; i++) {
+            angerArray.push(data[i].anger);
+            contemptArray.push(data[i].contempt);
+            disgustArray.push(data[i].disgust);
+            happinessArray.push(data[i].happiness);
+            neutralArray.push(data[i].happiness);
+            sadnessArray.push(data[i].sadness);
+            surpriseArray.push(data[i].surprise);
+        }
+        series.push({'Anger' : angerArray});
+        series.push({'Contempt' : contemptArray});
+        series.push({'Disgust' : disgustArray});
+        series.push({'Happiness' : happinessArray});
+        series.push({'Netural' : neutralArray});
+        series.push({'Sadness' : sadnessArray});
+        series.push({'Surprise' : surpriseArray});
+
+        highChart.series = series;
+        this.drawchart()
     }
 }
 
 $(document).ready(function() {
     detectEmotionBtn();
-    normalizedStackBar();
-    var c = new HighCharts();
-    c.drawchart();
+    //normalizedStackBar();
+    highChart = new HighCharts();
+    getDataForCharts();
 });
