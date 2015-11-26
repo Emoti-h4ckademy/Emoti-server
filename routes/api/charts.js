@@ -17,7 +17,7 @@ router.get('/', function(req, res) {
         var days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
         for (var i = 0; i < days.length; i++){
             resultObj = {};
-            resultObj.State = days[i];
+            resultObj.day = days[i];
             var scores = JSON.parse(images[i].emotions)[0].scores;
             for (var key in scores){
                 var attrName = key;
