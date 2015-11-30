@@ -13,7 +13,7 @@ var http = require('http');
  */
 
 var port = normalizePort(process.env.PORT || '5000');
-app.set('ip', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
+//app.set('ip', process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
 app.set('port', port);
 
 
@@ -35,7 +35,7 @@ function StartListening (alternativePort) {
    // app.set('port', availablePort);
   }
 
-  server.listen(availablePort, app.get('ip'));
+  server.listen(availablePort);
   server.on('error', onError);
   server.on('listening', onListening);
 }
