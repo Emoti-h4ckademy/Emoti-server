@@ -214,10 +214,10 @@ HighCharts.prototype ={
         series.push({name : 'Contempt', data : contemptArray, color : colors.contempt});
         series.push({name : 'Disgust', data : disgustArray, color : colors.disgust});
         series.push({name : 'Happiness', data : happinessArray, color : colors.happiness});
-        series.push({name : 'Netural', data : neutralArray, color : colors.neutral});
+        series.push({name : 'Neutral', data : neutralArray, color : colors.neutral});
         series.push({name : 'Sadness' , data : sadnessArray, color : colors.sadness});
         series.push({name : 'Surprise', data : surpriseArray, color : colors.surprise});
-        series.push({name : 'Fear', data : surpriseArray, color : colors.surprise});
+        series.push({name : 'Fear', data : fearArray, color : colors.fear});
 
         seriesWeek =  series;
         return seriesWeek;
@@ -225,7 +225,6 @@ HighCharts.prototype ={
     parseDataDemo: function (data) {
         var series = [];
         var object = data[0];
-        var emObj;
 
         series.push(
             {name: 'Emotions',
