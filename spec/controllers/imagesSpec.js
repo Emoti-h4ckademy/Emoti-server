@@ -428,11 +428,11 @@ describe("Controllers: images - _checkOptions", function() {
     
     //If you add a key here you add some tests bellow to check your new option
     var optionImplementedTests = {
-        'queryLimit' :          true,
-        'onlyWithEmotions' :    true,
-        'sortByDate' :          true,
-        'returnImage' :         true,
-        'username' :            true
+        queryLimit :          true,
+        queryUsername :       true,
+        filterHasEmotions :   true,
+        sortDate :            true,
+        returnImage :         true
     };
     
     it ("There is no new options added without tests implemented here", function () {     
@@ -489,31 +489,31 @@ describe("Controllers: images - _checkOptions", function() {
         });
     });
     
-    it ("OK with valid onlyWithEmotions", function (done) {
-        ImageCtrl._checkOptions({onlyWithEmotions : false}, function (error, optionJson) {
+    it ("OK with valid filterHasEmotions", function (done) {
+        ImageCtrl._checkOptions({filterHasEmotions : false}, function (error, optionJson) {
             expect(error).toBeFalsy();
-            expect(optionJson.onlyWithEmotions).toEqual(false);
+            expect(optionJson.filterHasEmotions).toEqual(false);
             done();
         });
     });
     
-    it ("Error with invalid queryLimit", function (done) {
-        ImageCtrl._checkOptions({onlyWithEmotions : "aaaa"}, function (error, optionJson) {
+    it ("Error with invalid filterHasEmotions", function (done) {
+        ImageCtrl._checkOptions({filterHasEmotions : "aaaa"}, function (error, optionJson) {
             expect(error).toBeTruthy();
             done();
         });
     });
     
-    it ("OK with valid sortByDate", function (done) {
-        ImageCtrl._checkOptions({sortByDate : 'asc'}, function (error, optionJson) {
+    it ("OK with valid sortDate", function (done) {
+        ImageCtrl._checkOptions({sortDate : 'asc'}, function (error, optionJson) {
             expect(error).toBeFalsy();
-            expect(optionJson.sortByDate).toEqual('asc');
+            expect(optionJson.sortDate).toEqual('asc');
             done();
         });
     });
 
-    it ("Error with invalid sortByDate", function (done) {
-        ImageCtrl._checkOptions({sortByDate : "tyotorltok"}, function (error, optionJson) {
+    it ("Error with invalid sortDate", function (done) {
+        ImageCtrl._checkOptions({sortDate : "tyotorltok"}, function (error, optionJson) {
             expect(error).toBeTruthy();
             done();
         });
@@ -535,34 +535,34 @@ describe("Controllers: images - _checkOptions", function() {
     });
     
     it ("OK with valid username", function (done) {
-        ImageCtrl._checkOptions({username : "My username"}, function (error, optionJson) {
+        ImageCtrl._checkOptions({queryUsername : "My username"}, function (error, optionJson) {
             expect(error).toBeFalsy();
-            expect(optionJson.username).toEqual("My username");
+            expect(optionJson.queryUsername).toEqual("My username");
             done();
         });
     });
     
     it ("Error with invalid username", function (done) {
-        ImageCtrl._checkOptions({username : 98484684}, function (error, optionJson) {
+        ImageCtrl._checkOptions({queryUsername : 98484684}, function (error, optionJson) {
             expect(error).toBeTruthy();
             done();
         });
     });
     
     it ("Check default parameter in a half completed options", function (done) {
-        ImageCtrl._checkOptions({username : "My username", queryLimit: 30}, function (error, optionJson) {
+        ImageCtrl._checkOptions({queryUsername : "My username", queryLimit: 30}, function (error, optionJson) {
             expect(error).toBeFalsy();
             expect(optionJson.queryLimit).toEqual(30);
-            expect(optionJson.onlyWithEmotions).toEqual(ImageCtrl._optionsDefault.onlyWithEmotions);
-            expect(optionJson.sortByDate).toEqual(ImageCtrl._optionsDefault.sortByDate);
+            expect(optionJson.filterHasEmotions).toEqual(ImageCtrl._optionsDefault.filterHasEmotions);
+            expect(optionJson.sortDate).toEqual(ImageCtrl._optionsDefault.sortDate);
             expect(optionJson.returnImage).toEqual(ImageCtrl._optionsDefault.returnImage);
-            expect(optionJson.username).toEqual("My username");
+            expect(optionJson.queryUsername).toEqual("My username");
             done();
         });
     });
     
     it ("Check with invalid parameter in a half completed options", function (done) {
-        ImageCtrl._checkOptions({username : "My username", queryLimit: 30, random: "Invalid"}, function (error, optionJson) {
+        ImageCtrl._checkOptions({queryUsername : "My username", queryLimit: 30, random: "Invalid"}, function (error, optionJson) {
             expect(error).toBeTruthy();
             done();
         });
@@ -747,7 +747,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });
     
     it ("Should set sort", function (done) {       
-        ImageCtrl._generateMongoDBParameters({sortByDate : 'desc'}, function (error, conditions, fields, options) {
+        ImageCtrl._generateMongoDBParameters({sortDate : 'desc'}, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             expect(options.sort).toEqual([['date', 'desc']]);
             done();
@@ -755,15 +755,15 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });
     
     it ("Should unset sort", function (done) {       
-        ImageCtrl._generateMongoDBParameters({sortByDate : false}, function (error, conditions, fields, options) {
+        ImageCtrl._generateMongoDBParameters({sortDate : false}, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             expect(options.sort).toBeFalsy();
             done();
         });
     });
     
-    it ("Should unset onlyWithEmotions", function (done) {
-        myOptions.onlyWithEmotions = true;
+    it ("Should unset filterHasEmotions", function (done) {
+        myOptions.filterHasEmotions = true;
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             var foundEmotions = false;
@@ -783,8 +783,8 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         });
     });
     
-    it ("Should set onlyWithEmotions", function (done) {
-        myOptions.onlyWithEmotions = false;
+    it ("Should set filterHasEmotions", function (done) {
+        myOptions.filterHasEmotions = false;
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             var foundEmotions = false;
@@ -824,7 +824,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });
     
     it ("Should set username", function (done) {
-        myOptions.username = "TESSSSST";
+        myOptions.queryUsername = "TESSSSST";
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             var foundUsername = false;
@@ -840,7 +840,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });
     
     it ("Should unset username", function (done) {
-        myOptions.username = false;
+        myOptions.queryUsername = false;
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             var foundUsername = false;
@@ -866,7 +866,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });
     
     it ("Should set query limit and sort (options field)", function (done) {
-        myOptions.sortByDate = 'asc';
+        myOptions.sortDate = 'asc';
         myOptions.queryLimit = 20;
         
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
@@ -877,9 +877,9 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         });
     });
     
-    if ("Should set username and onlyWithEmotions (conditions field)", function () {
+    if ("Should set username and filterHasEmotions (conditions field)", function () {
         myOptions.username = "USERNAMERANDOM";
-        myOptions.onlyWithEmotions = true;
+        myOptions.filterHasEmotions = true;
         
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
@@ -1009,9 +1009,4 @@ describe("Controllers: images - getImagesStoredWithEmotions", function() {
             done();
         });
     });
-    
-    
 });
-
-
-

@@ -10,18 +10,18 @@ function Images () {
     
     this._optionsDefault = {
         queryLimit :          0,
-        onlyWithEmotions :    true,
-        sortByDate :          false,
-        returnImage :         false,
-        username :            false
+        queryUsername :       false,
+        filterHasEmotions :   true,
+        sortDate :            false,
+        returnImage :         false
     };
     
     this._optionsFunctions = {
         queryLimit :          this._checkQueryLimit,
-        onlyWithEmotions :    this._checkOnlyWithEmotions,
-        sortByDate :          this._checkSortbyDate,
-        returnImage :         this._checkReturnImage,
-        username :            this._checkUsername
+        queryUsername :       this._checkUsername,
+        filterHasEmotions :   this._checkOnlyWithEmotions,
+        sortDate :            this._checkSortbyDate,
+        returnImage :         this._checkReturnImage
     };
 }
 
@@ -109,21 +109,21 @@ Images.prototype._checkQueryLimit = function (queryLimit) {
 };
 
 /**
- * Checks whether the parameter is a valid onlyWithEmotions options value
- * @param {type} onlyWithEmotions
+ * Checks whether the parameter is a valid filterHasEmotions options value
+ * @param {type} filterHasEmotions
  * @returns {Boolean} true if its valid, false if it isn't
  */
-Images.prototype._checkOnlyWithEmotions = function (onlyWithEmotions) {
-    return (typeof(onlyWithEmotions) === "boolean");
+Images.prototype._checkOnlyWithEmotions = function (filterHasEmotions) {
+    return (typeof(filterHasEmotions) === "boolean");
 };
 
 /**
- * Checks whether the parameter is valid for a sortByDate options value
- * @param {type} sortByDate
+ * Checks whether the parameter is valid for a sortDate options value
+ * @param {type} sortDate
  * @returns {Boolean}
  */
-Images.prototype._checkSortbyDate = function (sortByDate) {
-    return (sortByDate === 'asc' || sortByDate === 'desc' || sortByDate === false);
+Images.prototype._checkSortbyDate = function (sortDate) {
+    return (sortDate === 'asc' || sortDate === 'desc' || sortDate === false);
 };
 
 /**
@@ -235,17 +235,17 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
         var conditionsV = [];
         var fields = 'username ip date emotions mainemotion';
         var options = { limit : optionsSet.queryLimit};
-        if (optionsSet.sortByDate) {
-            options.sort = [['date', optionsSet.sortByDate]];
+        if (optionsSet.sortDate) {
+            options.sort = [['date', optionsSet.sortDate]];
         }
         
-        if (optionsSet.onlyWithEmotions) {
+        if (optionsSet.filterHasEmotions) {
             conditionsV.push ({"mainemotion" : { "$exists" : true }});
             conditionsV.push ({"emotions" : { "$exists" : true }});
         }
         
-        if (optionsSet.username) {
-            conditionsV.push ({"username" : optionsSet.username});
+        if (optionsSet.queryUsername) {
+            conditionsV.push ({"username" : optionsSet.queryUsername});
         }
         
         if (optionsSet.returnImage) {
