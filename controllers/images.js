@@ -146,7 +146,8 @@ Images.prototype._checkUsername = function (username){
 
 /**
  * Checks the options parameter for a Images query
- * @param {type} myOptions Options for the query
+ * @param {type} myOptions Options for the query. If an option is setup more than once,
+ * it will take the last value
  * @param {type} callback (error, optionsSet)
  * Error will only be false if all the options are parsed correctly
  * OptionSet is an object with all the options configured, either to the passed value or to default

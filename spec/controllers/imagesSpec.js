@@ -800,8 +800,16 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         });
     });
     
-    it ("Should set onlyWithEmotions", function (done) {
-        myOptions.onlyWithEmotions = false;
+    it ("Should unset sort", function (done) {       
+        ImageCtrl._generateMongoDBParameters({sortByDate : false}, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect(options.sort).toBeFalsy();
+            done();
+        });
+    });
+    
+    it ("Should unset onlyWithEmotions", function (done) {
+        myOptions.onlyWithEmotions = true;
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             var foundEmotions = false;
@@ -815,28 +823,48 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
                 }
                 
             }
+            expect(foundMainEmotion).toBeTruthy();
+            expect(foundEmotions).toBeTruthy();
+            done();
+        });
+    });
+    
+    it ("Should set onlyWithEmotions", function (done) {
+        myOptions.onlyWithEmotions = false;
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundEmotions = false;
+            var foundMainEmotion = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].mainemotion) {
+                    foundMainEmotion = true;
+                }
+                if (conditions.$and[andCondition].emotions) {
+                    foundEmotions = true;
+                }
+            }
             expect(foundMainEmotion).toBeFalsy();
             expect(foundEmotions).toBeFalsy();
             done();
         });
     });
     
-    it ("Should set returnImage FALSE", function (done) {
-        myOptions.returnImage = false;
-        
-        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
-            expect(error).toBeFalsy();
-            expect(fields).toEqual('username ip date emotions mainemotion');
-            done();
-        });
-    });
-    
-    it ("Should set returnImage TRUE", function (done) {
+    it ("Should set returnImage", function (done) {
         myOptions.returnImage = true;
         
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
             expect(fields).toEqual('username ip date emotions mainemotion image');
+            done();
+        });
+    });
+    
+    it ("Should unset returnImage", function (done) {
+        myOptions.returnImage = false;
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect(fields).toEqual('username ip date emotions mainemotion');
             done();
         });
     });
@@ -857,6 +885,22 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         });
     });
     
+    it ("Should unset username", function (done) {
+        myOptions.username = false;
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundUsername = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].username) {
+                    foundUsername = conditions.$and[andCondition].username;
+                    break;
+                }      
+            }
+            expect(foundUsername).toBeFalsy();
+            done();
+        });
+    });
+    
     it ("Default", function (done){
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
@@ -865,13 +909,48 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
             expect(options).toEqual({limit : 0});
             done();
         });
-
     });
     
-    //TODO: OPOSITE CHECKS <<<<<<<<<<<<<<<<<<
+    it ("Should set query limit and sort (options field)", function (done) {
+        myOptions.sortByDate = 'asc';
+        myOptions.queryLimit = 20;
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect (options.limit).toBe(20);
+            expect(options.sort).toEqual([['date', 'asc']]);
+            done();
+        });
+    });
     
-    //TODO: COMPOSITE CHECKS
-    
+    if ("Should set username and onlyWithEmotions (conditions field)", function () {
+        myOptions.username = "USERNAMERANDOM";
+        myOptions.onlyWithEmotions = true;
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            
+            var foundEmotions = false;
+            var foundMainEmotion = false;
+            var foundUsername = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].username) {
+                    foundUsername = conditions.$and[andCondition].username;
+                    break;
+                }
+                if (conditions.$and[andCondition].mainemotion) {
+                    foundMainEmotion = true;
+                }
+                if (conditions.$and[andCondition].emotions) {
+                    foundEmotions = true;
+                }
+            }
+            
+            expect(foundMainEmotion).toBeFalsy();
+            expect(foundEmotions).toBeFalsy();
+            expect(foundUsername).toEqual("USERNAMERANDOM");
+        });
+    });    
 });
 
 //TODO: Test for addImage
