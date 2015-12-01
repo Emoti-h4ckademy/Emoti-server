@@ -6,10 +6,10 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var imageSchema = new Schema({
-    username:    { type: String },
-    ip:          { type: String },
-    date:        { type: Date},
-    image:       { type: String },
+    username:    { type: String, required: true },
+    ip:          { type: String, required: true },
+    date:        { type: Date, required: true },
+    image:       { type: String, required: true },
     emotions:    { type: String },
     mainemotion: { type: String}
 });

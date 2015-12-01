@@ -1,7 +1,3 @@
-/**
- * Created by Carlos on 16/11/15.
- */
-
 var highChart;
 var demoChart;
 var seriesWeek;
@@ -56,7 +52,7 @@ var detectEmotionBtn = function (){
 var getDataForWeek = function () {
     $.ajax({
         type: 'GET',
-        url: '/api/charts/all',
+        url: '/api/charts/week',
         data: {  },
         dataType: 'json',
         success: function(data){
@@ -234,6 +230,3 @@ HighCharts.prototype ={
         seriesDemoPie = series;
     }
 }
-
-
-

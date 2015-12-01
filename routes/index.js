@@ -10,17 +10,25 @@ router.get('/', function(req, res, next) {
 
 
 router.get('/show-images', function(req, res) {
-    ImageCtrl.getImagesStoredWithEmotions(0, function(error, allImages){
-    res.render('images',
-        {
-          myimages : allImages/*,
-          helpers: {
-              base64decode: function(base64str)
-                            {
-                              return new Buffer(base64str, 'base64');
-                            }
-          }*/
-        });
+    var myOptions = ImageCtrl.getNewOptions();
+    myOptions.queryUsername = "Demo";
+    myOptions.returnImage = true;
+    myOptions.filterHasEmotions = false;
+    ImageCtrl.getImages(myOptions, function(error, allImages){
+        if (error) {
+            console.log("FAILURE RETRIEVING IMAGES");
+        } else {
+            res.render('images',
+            {
+                myimages : allImages/*,
+                helpers: {
+                    base64decode: function(base64str)
+                                {
+                                  return new Buffer(base64str, 'base64');
+                                }
+              }*/
+            });
+        }
     });
 
 });

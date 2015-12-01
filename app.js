@@ -125,5 +125,76 @@ app.use(function(err, req, res, next) {
   });
 });
 
+var chokidar = require('chokidar');
+var fs = require('fs');
+var imageDB = require('./controllers/images');
+
+//var watcher = chokidar.watch('/home/algunenano/Dropbox/Camera Uploads/', {
+//  ignored: /[\/\\]\./, persistent: true
+//});
+//
+//var initialScan = false;
+//
+//watcher
+//    .on('addDir', function(path) { console.log('Directory', path, 'has been added'); })
+//    .on('change', function(path) { console.log('File', path, 'has been changed'); })
+//    .on('unlink', function(path) { console.log('File', path, 'has been removed'); })
+//    .on('unlinkDir', function(path) { console.log('Directory', path, 'has been removed'); })
+//    .on('error', function(error) { console.log('Error happened', error); })
+//    .on('ready', function() { console.log('Initial scan complete. Ready for changes.'); initialScan = true; })
+//    .on('raw', function(event, path, details) { console.log('Raw event info:', event, path, details); })
+//    .on('add', function(path) {
+//        if (initialScan) {
+//            console.log('File', path, 'has been added');
+//          
+//            fs.readFile(path, function (error, data) {
+//                if (error) {
+//                    console.log("Demo error");
+//                } else {
+//                    myimage = data.toString('base64');
+//                    imageDB.oxfordLib.recognizeImageB64(data, function(error, emotions) {
+//                        var store;
+//                        if (error) {
+//                            console.log("Demo: No emotions detected. Error: "+ error);
+//                            return;
+//                        } else {
+//
+//                            //Extract main emotion
+//                            var mainEmotionObj = imageDB.oxfordLib.extractMainEmotion(emotions);
+//
+////                            if (mainEmotionObj === imageDB.oxfordLib.emptyEmotion) {
+////                                console.log("DEMO: No emotion detected");
+////                                return;
+////                            }
+//
+//                            var mainEmotion = mainEmotionObj.emotion;
+//
+//                            console.log("DEMO: Image recognition: " + mainEmotion + " (" + emotions + ")");
+//                            
+//                            store = new imageDB.imageDB({
+//                                username:    "Demo",
+//                                ip:          "Demo",
+//                                date:        new Date(),
+//                                image:       myimage,
+//                                emotions:    emotions,
+//                                mainemotion: mainEmotion
+//                            });
+//                        }
+//
+//                        store.save (function (error, store) {
+//                            if (error) {
+//                                console.log("Demo error DB");
+//                            } else
+//                                console.log("DEMO: New image added");
+//                        });
+//                    });
+//                }
+//            });
+//                    
+//        }
+//    })
+      
+
+
 
 module.exports = app;

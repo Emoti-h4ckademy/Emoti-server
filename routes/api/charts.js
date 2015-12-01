@@ -8,17 +8,19 @@ var TestUtils = require('../../lib/test/testUtils');
 
 
 /* GET charts listing. */
-router.get('/', function(req, res) {
-    var month = new Date().getMonth();
+router.get('/week', function(req, res) {    
+    var myOptions = ImageCtrl.getNewOptions();
+    myOptions.queryUsername = "Demo";
+    myOptions.returnImage = false;
 
-    ImageCtrl.getImageByMonth(month, function(err, images){
+    ImageCtrl.getImages(myOptions, function(error, allImages){
         var data = [];
         var resultObj;
         var days = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
         for (var i = 0; i < days.length; i++){
             resultObj = {};
             resultObj.day = days[i];
-            var scores = JSON.parse(images[i].emotions)[0].scores;
+            var scores = JSON.parse(allImages[i].emotions)[0].scores;
             for (var key in scores){
                 var attrName = key;
                 var attrValue = scores[key];
@@ -37,20 +39,24 @@ router.get('/', function(req, res) {
 });
 
 router.get('/demo', function(req, res) {
-    var month = new Date().getMonth();
-    var username = 'Carlos'
-
-    ImageCtrl.getImagesbyUsername(0, username, function(err, images){
-        var data = [];
-        var resultObj = {"anger" : 0, "contempt" : 0, "disgust" : 0, "fear" : 0, "happiness" : 0, "neutral" : 0,
-            "sadness" : 0, "surprise" : 0, "fear" : 0 };
-        for (var i = 0; i < images.length; i++) {
-            if (resultObj[images[i].mainemotion] >= 0)
-                resultObj[images[i].mainemotion]++;
+    var myOptions = ImageCtrl.getNewOptions();
+    myOptions.queryUsername = "Demo";
+    myOptions.returnImage = false;
+    
+    var resultObj = {};
+    ImageCtrl.getImages(myOptions, function(error, allImages){
+        if (error) {
+            console.log("ERROR RETRIEVING IMAGES");
+        } else {
+            var data = [];
+            resultObj = {"anger" : 0, "contempt" : 0, "disgust" : 0, "fear" : 0, "happiness" : 0, "neutral" : 0, "sadness" : 0, "surprise" : 0 };
+            for (var i = 0; i < allImages.length; i++) {
+                if (resultObj[allImages[i].mainemotion] >= 0)
+                    resultObj[allImages[i].mainemotion]++;
+            }
         }
         console.log(resultObj);
         data.push(resultObj);
-
         res.json(data);
     });
 
