@@ -3,9 +3,7 @@
  */
 module.exports = {
     db: {
-        //development: "mongodb://localhost/emoti",
-        development: "mongodb://emoti:emoti@ds059654.mongolab.com:59654/emoti",
+        development: "mongodb://localhost/emoti",
         demo: "mongodb://localhost/emotitest",
-        production: "mongodb://emoti:emoti@ds059654.mongolab.com:59654/emoti"
     }
 };
