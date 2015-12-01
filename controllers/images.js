@@ -218,7 +218,8 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
 
 /**
  * Generate the parameter for the DB function find
- * @param {type} options - Options Object (structure should be as _optionsDefault)
+ * @param {type} options - Options Object (structure should be as _optionsDefault).
+ * Validated with _checkOptions
  * @param {type} callback (error, conditions, fields, options)
  * @returns {undefined}
  */
@@ -256,10 +257,17 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
     });   
 };
 
+/**
+ * Gets documents from the DB
+ * @param {type} options - Options for the query. Must have the same structure as _optionsDefault.
+ * Parses with _generateMongoDBParameters
+ * @param {type} callback (error, documents)
+ * @returns {undefined}
+ */
 Images.prototype.getImages = function (options, callback) {
     var self = this;
     
-    self._generateMongoDBParameteres(options, function(error, conditions, fields, options) {
+    self._generateMongoDBParameters(options, function(error, conditions, fields, options) {
         if (error) {
             callback (error, []);
             return;

@@ -705,52 +705,6 @@ describe("Controllers: images - updateImagesWithoutEmotions", function() {
     });
 });
 
-describe("Controllers: images - getImagesStoredWithEmotions", function() {
-    var ImageCtrl = require('../../controllers/images');
-    
-    var DocumentFull = new ImageCtrl.imageDB({
-        username:    "test",
-        ip:          "127.0.0.1",
-        date:        new Date(),
-        image:       "IMAGE",
-        emotions:    "emotions",
-        mainemotion: "mainemotion"
-    });
-    
-    xit("Validates with _checkOptions", function(done){
-        expect(true).toBeFalsy();
-    });
-    
-    it("Return error if the DB fails", function(done) {
-        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
-        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
-            callback ("Error", undefined);
-        };
-        
-        ImageCtrl.getImagesStoredWithEmotions(0, function (error, documents) {
-            expect(error).toBeTruthy();
-            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
-            done();
-        });
-    });
-    
-    it("Returns the documents returned by the DB", function(done) {
-        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
-        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
-            callback (false, [DocumentFull, DocumentFull, DocumentFull]);
-        };
-        
-        ImageCtrl.getImagesStoredWithEmotions(0, function (error, documents) {
-            expect(error).toBeFalsy();
-            expect(documents).toEqual([DocumentFull, DocumentFull, DocumentFull]);
-            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
-            done();
-        });
-    });
-    
-    
-});
-
 describe("Controllers: images - _generateMongoDBParameters", function() {
     var ImageCtrl = require('../../controllers/images');
     var myOptions;
@@ -772,7 +726,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         ImageCtrl._checkOptions = function (myOptions, callback) {
             called = true;
             callback(true, myOptions);
-        }
+        };
         
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(called).toBeTruthy();
@@ -953,7 +907,111 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });    
 });
 
-//TODO: Test for addImage
+describe("Controllers: images - getImages", function() {
+    var ImageCtrl = require('../../controllers/images');
+    
+    it ("Should get parameters with _generateMongoDBParameters", function(done){
+        var called = false;
+        var oldGetParameters = ImageCtrl._generateMongoDBParameters.bind(ImageCtrl);
+        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
+        
+        ImageCtrl._generateMongoDBParameters = function (options, callback) {
+            called = true;
+            oldGetParameters(options, callback);
+        };
+        
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            callback (false, [{image: "aaaa"}]);
+        };
+        
+        ImageCtrl.getImages({}, function(error, documents) {
+            expect(error).toBeFalsy();
+            expect(called).toBeTruthy();
+            ImageCtrl._generateMongoDBParameters = oldGetParameters.bind(ImageCtrl);
+            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
+            done();
+        });
+        
+    });
+    
+    it ("Should fail id db is down", function(done) {
+        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
+        
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            callback ("ERROR PROVOCADO", undefined);
+        };
+        
+        ImageCtrl.getImages({}, function(error, documents) {
+            expect(error).toBeTruthy();
+            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
+            done();
+        });
+    });
+    
+    it ("Should return the documents if OK", function(done) {
+        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
+        var myDocuments = [{image: "aaaa"}, {image: "aaaa"}, {image: "aaaa"}];
+        
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            callback (false, myDocuments);
+        };
+        
+        ImageCtrl.getImages({}, function(error, documents) {
+            expect(error).toBeFalsy();
+            expect(documents).toEqual(myDocuments);
+            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
+            done();
+        });
+    });
+    
+});
 
-//TODO: REFACTOR OTHER METHODS TO CALL GETiMAGES INSTEAD OF FIND DIRECTLY TO THE DB
+//TODO: REFACTOR WITH calls TO GET IMAGES
+describe("Controllers: images - getImagesStoredWithEmotions", function() {
+    var ImageCtrl = require('../../controllers/images');
+    
+    var DocumentFull = new ImageCtrl.imageDB({
+        username:    "test",
+        ip:          "127.0.0.1",
+        date:        new Date(),
+        image:       "IMAGE",
+        emotions:    "emotions",
+        mainemotion: "mainemotion"
+    });
+    
+    xit("Validates with _checkOptions", function(done){
+        expect(true).toBeFalsy();
+    });
+    
+    it("Return error if the DB fails", function(done) {
+        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            callback ("Error", undefined);
+        };
+        
+        ImageCtrl.getImagesStoredWithEmotions(0, function (error, documents) {
+            expect(error).toBeTruthy();
+            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
+            done();
+        });
+    });
+    
+    it("Returns the documents returned by the DB", function(done) {
+        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
+        ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
+            callback (false, [DocumentFull, DocumentFull, DocumentFull]);
+        };
+        
+        ImageCtrl.getImagesStoredWithEmotions(0, function (error, documents) {
+            expect(error).toBeFalsy();
+            expect(documents).toEqual([DocumentFull, DocumentFull, DocumentFull]);
+            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
+            done();
+        });
+    });
+    
+    
+});
+
+
 
