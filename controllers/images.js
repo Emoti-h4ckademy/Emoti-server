@@ -7,6 +7,22 @@
 function Images () {
     this.imageDB = require('../models/image');
     this.oxfordLib = require('../lib/oxford');
+    
+    this._optionsDefault = {
+        'queryLimit' :          0,
+        'onlyWithEmotions' :    true,
+        'sortbyDate' :          false,
+        'returnImage' :         false,
+        'username' :            false
+    };
+    
+    this._optionsFunctions = {
+        'queryLimit' :          this._checkQueryLimit,
+        'onlyWithEmotions' :    this._checkOnlyWithEmotions,
+        'sortbyDate' :          this._checkSortbyDate,
+        'returnImage' :         this._checkReturnImage,
+        'username' :            this._checkUsername
+    };
 }
 
 /**
@@ -126,7 +142,41 @@ Images.prototype._checkReturnImage = function (returnImage) {
  */
 Images.prototype._checkUsername = function (username){
     return (username === false || typeof(username) === "string");
-}
+};
+
+/**
+ * Checks the options parameter for a Images query
+ * @param {type} myOptions Options for the query
+ * @param {type} callback (error, optionsSet)
+ * Error will only be false if all the options are parsed correctly
+ * OptionSet is an object with all the options configured, either to the passed value or to default
+ * @returns {undefined}
+ */
+Images.prototype._checkOptions = function (myOptions, callback) {
+    var self = this;
+    var returnOptions = Object.create(self._optionsDefault);
+    
+    if (typeof(myOptions) !== "object") {
+        callback ("Invalid option object", returnOptions);
+        return;
+    }
+
+    for (var key in myOptions) {
+        if (!self._optionsFunctions[key]) {
+            callback ("Invalid key: " + key, returnOptions);
+            return;
+        }
+        
+        if (!self._optionsFunctions[key](myOptions[key])) {
+            callback ("Invalid value (" + myOptions[key] +") for option " + key);
+            return;
+        }
+        
+        returnOptions[key] = myOptions[key];
+    }
+    
+    callback (false, returnOptions);
+};
 
 /**
  * Checks the DB for images without emotions stored and updates them
@@ -166,110 +216,45 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
 };
 
 /**
- * Checks the options parameter for a Images query
- * @param {type} optionsJson: Acepted options:
- * **queryLimit = Limit for the query
- *      - must be a positive integer (or 0 for no limit). Default: 0
- * **onlyWithEmotions = Only return images with emotions and mainemotion calculated
- *      - Must be true / false. Default: true
- * **sortbyDate = Order returned documents by date
- *      - Must be 'asc', 'desc' or false (no order). Default: false
- * **returnImage = Whether to return the binary image or not
- *      - Must be true / false. Default: false
- * ** username = Whether to filter by username
- *      - Must be a String or false. Default: false
- * @param {type} callback (error, JSONwithAllTheOptionsSet)
- * Error will only be false if all the options are parsed correctly
+ * Generate the parameter for the DB function find
+ * @param {type} options - Options Object (structure should be as _optionsDefault)
+ * @param {type} callback (error, conditions, fields, options)
  * @returns {undefined}
  */
-Images.prototype._checkOptions = function (optionsJson, callback) {
-    var self = this;
-    var returnOptions = 
-            {
-                'queryLimit' :          0,
-                'onlyWithEmotions' :    true,
-                'sortbyDate' :          false,
-                'returnImage' :         false,
-                'username' :            false
-            };
-    var checkFunctions =
-            {
-                'queryLimit' :          self._checkQueryLimit,
-                'onlyWithEmotions' :    self._checkOnlyWithEmotions,
-                'sortbyDate' :          self._checkSortbyDate,
-                'returnImage' :         self._checkReturnImage,
-                'username' :            self._checkUsername
-            };
-    
-    var myOptions = optionsJson;
-    
-    if (typeof(myOptions) !== "object") {
-        callback ("Invalid option object", returnOptions);
-        return;
-    }
+Images.prototype._generateMongoDBParameters = function (options, callback) {
+    var conditions;
+    var fields;
+    var options;
+    var error;
+    //conditions, fields, options, callback
+    callback (error, conditions, fields, options);
+};
 
+Images.prototype.getImages = function (options, callback) {
+    var self = this;
     
-    for (var key in myOptions) {
-        if (!checkFunctions[key]) {
-            callback ("Invalid key: " + key, returnOptions);
+    self._checkOptions(options, function(error, optionsSet) {
+        if (error) {
+            callback (error, []);
             return;
         }
         
-        if (!checkFunctions[key](myOptions[key])) {
-            callback ("Invalid value (" + myOptions[key] +") for option " + key);
-            return;
-        }
-        
-        returnOptions[key] = myOptions[key];
-    }
-    
-//    if(typeof myOptions !=='object') {
-//        callback ("Not a JSON");
-//        return;
-//    }
-//    
-//    if (myOptions.queryLimit) {
-//        if (!self._checkQueryLimit(myOptions.queryLimit)) {
-//            callback ("Invalid queryLimit");
-//            return;
-//        }
-//        returnOptions.queryLimit = myOptions.queryLimit;
-//    }
-//    
-//    if (myOptions.onlyWithEmotions) {
-//        if (!self._checkOnlyWithEmotions(myOptions.onlyWithEmotions)) {
-//            callback ("Invalid onlyWithEmotions");
-//            return;
-//        }
-//        returnOptions.onlyWithEmotions = myOptions.onlyWithEmotions;
-//    }
-//    
-//    if (myOptions.sortbyDate) {
-//        if (!self._checkSortbyDate(myOptions.sortbyDate)) {
-//            callback ("Invalid sortbyDate");
-//            return;
-//        }
-//        returnOptions.sortbyDate = myOptions.sortbyDate;
-//    }
-//    
-//    if (myOptions.returnImage) {
-//        if (!self._checkReturnImage(myOptions.returnImage)) {
-//            callback ("Invalid returnImage");
-//            return;
-//        }
-//        returnOptions.returnImage = myOptions.returnImage;
-//    }
-//    
-//    if (myOptions.username) {
-//        if (!self._checkUsername(myOptions.username)) {
-//            callback ("Invalid username");
-//            return;
-//        }
-//        returnOptions.username = myOptions.username;
-//    }
-    
-    callback (false, returnOptions);
-}
+        self._generateMongoDBParameteres(optionsSet, function(error, conditions, fields, options) {
+            if (error) {
+                callback (error, []);
+                return;
+            }
+            
+            self.imageDB.find(conditions, fields, options, function (error, images) {
+                    callback(error, images);
+                    return;
+                }
+            );
+            
+        });
+    });
+};
+
 
 /**
  * Retrieves images with emotions from the DB
@@ -327,7 +312,7 @@ Images.prototype.getImagesbyDates = function (month, callback) {
         'username mainemotion emotions date',
         {$sort: { 'date' : 'ascending' } },
         function (err, images) {
-            console.log("Number of images: " + images) // Space Ghost is a talk show host.
+            console.log("Number of images: " + images); // Space Ghost is a talk show host.
             callback(err, images);
         }
     );

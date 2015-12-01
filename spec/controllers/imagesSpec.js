@@ -1,3 +1,4 @@
+/* global expect */
 //console.log = function() {}; //Disable logs
 
 describe("Controllers: images - checkRequest", function() {
@@ -446,14 +447,14 @@ describe("Controllers: images - _checkOptions", function() {
         });
     });
     
-    it ("OK with empty options", function (done) {
+    it ("OK with empty options. Check default parameters", function (done) {
         ImageCtrl._checkOptions({}, function (error, optionJson) {
             expect(error).toBeFalsy();
-            expect(optionJson.queryLimit).toEqual(0);
-            expect(optionJson.onlyWithEmotions).toEqual(true);
-            expect(optionJson.sortbyDate).toEqual(false);
-            expect(optionJson.returnImage).toEqual(false);
-            expect(optionJson.username).toEqual(false);
+            expect(optionJson.queryLimit).toEqual(ImageCtrl._optionsDefault.queryLimit);
+            expect(optionJson.onlyWithEmotions).toEqual(ImageCtrl._optionsDefault.onlyWithEmotions);
+            expect(optionJson.sortbyDate).toEqual(ImageCtrl._optionsDefault.sortbyDate);
+            expect(optionJson.returnImage).toEqual(ImageCtrl._optionsDefault.returnImage);
+            expect(optionJson.username).toEqual(ImageCtrl._optionsDefault.username);
             done();
         });
     });
@@ -537,9 +538,9 @@ describe("Controllers: images - _checkOptions", function() {
         ImageCtrl._checkOptions({username : "My username", queryLimit: 30}, function (error, optionJson) {
             expect(error).toBeFalsy();
             expect(optionJson.queryLimit).toEqual(30);
-            expect(optionJson.onlyWithEmotions).toEqual(true);
-            expect(optionJson.sortbyDate).toEqual(false);
-            expect(optionJson.returnImage).toEqual(false);
+            expect(optionJson.onlyWithEmotions).toEqual(ImageCtrl._optionsDefault.onlyWithEmotions);
+            expect(optionJson.sortbyDate).toEqual(ImageCtrl._optionsDefault.sortbyDate);
+            expect(optionJson.returnImage).toEqual(ImageCtrl._optionsDefault.returnImage);
             expect(optionJson.username).toEqual("My username");
             done();
         });
@@ -734,3 +735,12 @@ describe("Controllers: images - getImagesStoredWithEmotions", function() {
     
     
 });
+
+//TODO: TEST _GENERATEMONGODBPARAMTERS
+describe("Controllers: images - _generateMongoDBParameters", function() {
+    
+});
+
+//TODO: REFACTOR OTHER METHODS TO CALL GETiMAGES INSTEAD OF FIND DIRECTLY TO THE DB
+
+//TODO: Test for addImage
