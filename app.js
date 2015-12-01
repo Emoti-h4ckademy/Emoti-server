@@ -125,9 +125,9 @@ app.use(function(err, req, res, next) {
   });
 });
 
-var chokidar = require('chokidar');
+/*var chokidar = require('chokidar');
 var fs = require('fs');
-var imageDB = require('./controllers/images');
+var imageDB = require('./controllers/images');*/
 
 //var watcher = chokidar.watch('/home/algunenano/Dropbox/Camera Uploads/', {
 //  ignored: /[\/\\]\./, persistent: true

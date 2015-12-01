@@ -11,7 +11,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/show-images', function(req, res) {
     var myOptions = ImageCtrl.getNewOptions();
-    myOptions.queryUsername = "Demo";
+   // myOptions.queryUsername = "Carlos";
     myOptions.returnImage = true;
     myOptions.filterHasEmotions = false;
     ImageCtrl.getImages(myOptions, function(error, allImages){
