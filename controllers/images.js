@@ -155,7 +155,7 @@ Images.prototype._checkUsername = function (username){
  */
 Images.prototype._checkOptions = function (myOptions, callback) {
     var self = this;
-    var returnOptions = Object.create(self._optionsDefault);
+    var returnOptions = self.getNewOptions();
     
     if (typeof(myOptions) !== "object") {
         callback ("Invalid option object", returnOptions);
@@ -281,69 +281,13 @@ Images.prototype.getImages = function (options, callback) {
     });
 };
 
-
 /**
- * Retrieves images with emotions from the DB
- * @param {type} queryLimit - Maximum number of images to analyze (0 for All)
- * @param {type} callback (error, Documents)
- * @returns {undefined}
+ * Returns a fresh options object
+ * @returns {F|Object}
  */
-Images.prototype.getImagesStoredWithEmotions = function(queryLimit, callback) {
-    var self = this;
-    if (!self._checkQueryLimit(queryLimit))
-    {
-        callback("Invalid queryLimit size", undefined);
-        return;
-    }
-    
-    self.imageDB.find(
-        {$and: [ {"mainemotion" : { "$exists" : true }},
-                {"emotions" : { "$exists" : true }}
-              ]},
-        {},
-        { limit : queryLimit },
-        function (err, images) {
-            callback(err, images);
-        }
-    );
+Images.prototype.getNewOptions = function () {
+    return Object.create(this._optionsDefault);
 };
-
-/**
- * 
- * @param {type} queryLimit
- * @param {type} username
- * @param {type} callback
- * @returns {undefined}
- */
-Images.prototype.getImagesbyUsername = function(queryLimit, username, callback) {
-    var self = this;
-    self.imageDB.find(
-        {'username' : username},
-        {},
-        { sort: [['date', 'desc']], limit : queryLimit},
-        function (err, images) {
-            callback(err, images);
-        }
-    );
-};
-
-////// ADD OPTION START DATE ?????
-Images.prototype.getImagesbyDates = function (month, callback) {
-    var self = this;
-    self.imageDB.find(
-        {$and: [ {"mainemotion" : { "$exists" : true }},
-                {"emotions" : { "$exists" : true }},
-                {'date' : {'$gte': new Date(2015, month, 1), '$lt': new Date(2015, month + 1, 3)}}
-              ]},
-        'username mainemotion emotions date',
-        {$sort: { 'date' : 'ascending' } },
-        function (err, images) {
-            console.log("Number of images: " + images); // Space Ghost is a talk show host.
-            callback(err, images);
-        }
-    );
-};
-
 
 /**
  * Checks whether a request to the addImage function is valid
