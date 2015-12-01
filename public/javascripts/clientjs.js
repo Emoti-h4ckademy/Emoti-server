@@ -56,7 +56,7 @@ var detectEmotionBtn = function (){
 var getDataForWeek = function () {
     $.ajax({
         type: 'GET',
-        url: '/api/charts',
+        url: '/api/charts/all',
         data: {  },
         dataType: 'json',
         success: function(data){
