@@ -1,4 +1,4 @@
-/* global expect */
+/* global expect */ 
 //console.log = function() {}; //Disable logs
 
 describe("Controllers: images - checkRequest", function() {
@@ -345,7 +345,7 @@ describe("Controllers: images - _checkSortbyDate", function() {
     });
     
     it("True with 'desc'", function(){
-        expect(ImageCtrl._checkSortbyDate('asc')).toBeTruthy();
+        expect(ImageCtrl._checkSortbyDate('desc')).toBeTruthy();
     });
     
     it("True with 'false'", function(){
@@ -426,6 +426,23 @@ describe("Controllers: images - _checkUsername", function() {
 describe("Controllers: images - _checkOptions", function() {
     var ImageCtrl = require('../../controllers/images');
     
+    //If you add a key here you add some tests bellow to check your new option
+    var optionImplementedTests = {
+        'queryLimit' :          true,
+        'onlyWithEmotions' :    true,
+        'sortByDate' :          true,
+        'returnImage' :         true,
+        'username' :            true
+    };
+    
+    it ("There is no new options added without tests implemented here", function () {     
+        for (var key in ImageCtrl._optionsDefault) {
+            if (!optionImplementedTests[key]) {
+                fail();
+            }
+        }
+    });
+    
     it ("Error with undefined", function (done) {
         ImageCtrl._checkOptions(undefined, function (error, optionJson) {
             expect(error).toBeTruthy();
@@ -447,14 +464,12 @@ describe("Controllers: images - _checkOptions", function() {
         });
     });
     
-    it ("OK with empty options. Check default parameters", function (done) {
+    it ("OK with empty options. Returns default parameters", function (done) {
         ImageCtrl._checkOptions({}, function (error, optionJson) {
             expect(error).toBeFalsy();
-            expect(optionJson.queryLimit).toEqual(ImageCtrl._optionsDefault.queryLimit);
-            expect(optionJson.onlyWithEmotions).toEqual(ImageCtrl._optionsDefault.onlyWithEmotions);
-            expect(optionJson.sortbyDate).toEqual(ImageCtrl._optionsDefault.sortbyDate);
-            expect(optionJson.returnImage).toEqual(ImageCtrl._optionsDefault.returnImage);
-            expect(optionJson.username).toEqual(ImageCtrl._optionsDefault.username);
+            for (var key in optionImplementedTests) {
+                expect(optionJson[key]).toEqual(ImageCtrl._optionsDefault[key]);
+            }
             done();
         });
     });
@@ -489,16 +504,16 @@ describe("Controllers: images - _checkOptions", function() {
         });
     });
     
-    it ("OK with valid sortbyDate", function (done) {
-        ImageCtrl._checkOptions({sortbyDate : 'asc'}, function (error, optionJson) {
+    it ("OK with valid sortByDate", function (done) {
+        ImageCtrl._checkOptions({sortByDate : 'asc'}, function (error, optionJson) {
             expect(error).toBeFalsy();
-            expect(optionJson.sortbyDate).toEqual('asc');
+            expect(optionJson.sortByDate).toEqual('asc');
             done();
         });
     });
 
-    it ("Error with invalid sortbyDate", function (done) {
-        ImageCtrl._checkOptions({sortbyDate : "tyotorltok"}, function (error, optionJson) {
+    it ("Error with invalid sortByDate", function (done) {
+        ImageCtrl._checkOptions({sortByDate : "tyotorltok"}, function (error, optionJson) {
             expect(error).toBeTruthy();
             done();
         });
@@ -539,7 +554,7 @@ describe("Controllers: images - _checkOptions", function() {
             expect(error).toBeFalsy();
             expect(optionJson.queryLimit).toEqual(30);
             expect(optionJson.onlyWithEmotions).toEqual(ImageCtrl._optionsDefault.onlyWithEmotions);
-            expect(optionJson.sortbyDate).toEqual(ImageCtrl._optionsDefault.sortbyDate);
+            expect(optionJson.sortByDate).toEqual(ImageCtrl._optionsDefault.sortByDate);
             expect(optionJson.returnImage).toEqual(ImageCtrl._optionsDefault.returnImage);
             expect(optionJson.username).toEqual("My username");
             done();
@@ -736,11 +751,130 @@ describe("Controllers: images - getImagesStoredWithEmotions", function() {
     
 });
 
-//TODO: TEST _GENERATEMONGODBPARAMTERS
 describe("Controllers: images - _generateMongoDBParameters", function() {
+    var ImageCtrl = require('../../controllers/images');
+    var myOptions;
+    
+    beforeEach(function(){
+        myOptions = Object.create(ImageCtrl._optionsDefault);
+    });
+    
+    it ("Error with undefined", function (done) {
+        ImageCtrl._generateMongoDBParameters(undefined, function (error, conditions, fields, options) {
+            expect(error).toBeTruthy();
+            done();
+        });
+    });
+    
+    it ("Should check all options with _checkOptions", function (done) {
+        var oldCheckOptions = ImageCtrl._checkOptions.bind(ImageCtrl);
+        var called = false;
+        ImageCtrl._checkOptions = function (myOptions, callback) {
+            called = true;
+            callback(true, myOptions);
+        }
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(called).toBeTruthy();
+            expect(error).toBeTruthy();
+            ImageCtrl._checkOptions = oldCheckOptions.bind(ImageCtrl);
+            done();
+        });
+    });
+    
+    it ("Should set query Limit in options", function (done) {
+        myOptions.queryLimit = 15;
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect (options.limit).toBe(15);
+            done();
+        });
+    });
+    
+    it ("Should set sort", function (done) {       
+        ImageCtrl._generateMongoDBParameters({sortByDate : 'desc'}, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect(options.sort).toEqual([['date', 'desc']]);
+            done();
+        });
+    });
+    
+    it ("Should set onlyWithEmotions", function (done) {
+        myOptions.onlyWithEmotions = false;
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundEmotions = false;
+            var foundMainEmotion = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].mainemotion) {
+                    foundMainEmotion = true;
+                }
+                if (conditions.$and[andCondition].emotions) {
+                    foundEmotions = true;
+                }
+                
+            }
+            expect(foundMainEmotion).toBeFalsy();
+            expect(foundEmotions).toBeFalsy();
+            done();
+        });
+    });
+    
+    it ("Should set returnImage FALSE", function (done) {
+        myOptions.returnImage = false;
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect(fields).toEqual('username ip date emotions mainemotion');
+            done();
+        });
+    });
+    
+    it ("Should set returnImage TRUE", function (done) {
+        myOptions.returnImage = true;
+        
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect(fields).toEqual('username ip date emotions mainemotion image');
+            done();
+        });
+    });
+    
+    it ("Should set username", function (done) {
+        myOptions.username = "TESSSSST";
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundUsername = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].username) {
+                    foundUsername = conditions.$and[andCondition].username;
+                    break;
+                }      
+            }
+            expect(foundUsername).toEqual("TESSSSST");
+            done();
+        });
+    });
+    
+    it ("Default", function (done){
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            expect(conditions).toEqual({$and: [ {"mainemotion" : { "$exists" : true }}, {"emotions" : { "$exists" : true }}]});
+            expect(fields).toEqual('username ip date emotions mainemotion');
+            expect(options).toEqual({limit : 0});
+            done();
+        });
+
+    });
+    
+    //TODO: OPOSITE CHECKS <<<<<<<<<<<<<<<<<<
+    
+    //TODO: COMPOSITE CHECKS
     
 });
 
+//TODO: Test for addImage
+
 //TODO: REFACTOR OTHER METHODS TO CALL GETiMAGES INSTEAD OF FIND DIRECTLY TO THE DB
 
-//TODO: Test for addImage

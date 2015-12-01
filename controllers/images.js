@@ -9,19 +9,19 @@ function Images () {
     this.oxfordLib = require('../lib/oxford');
     
     this._optionsDefault = {
-        'queryLimit' :          0,
-        'onlyWithEmotions' :    true,
-        'sortbyDate' :          false,
-        'returnImage' :         false,
-        'username' :            false
+        queryLimit :          0,
+        onlyWithEmotions :    true,
+        sortByDate :          false,
+        returnImage :         false,
+        username :            false
     };
     
     this._optionsFunctions = {
-        'queryLimit' :          this._checkQueryLimit,
-        'onlyWithEmotions' :    this._checkOnlyWithEmotions,
-        'sortbyDate' :          this._checkSortbyDate,
-        'returnImage' :         this._checkReturnImage,
-        'username' :            this._checkUsername
+        queryLimit :          this._checkQueryLimit,
+        onlyWithEmotions :    this._checkOnlyWithEmotions,
+        sortByDate :          this._checkSortbyDate,
+        returnImage :         this._checkReturnImage,
+        username :            this._checkUsername
     };
 }
 
@@ -222,36 +222,53 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
  * @returns {undefined}
  */
 Images.prototype._generateMongoDBParameters = function (options, callback) {
-    var conditions;
-    var fields;
-    var options;
-    var error;
-    //conditions, fields, options, callback
-    callback (error, conditions, fields, options);
+    var self = this;
+    
+    self._checkOptions(options, function(error, optionsSet) {
+        if (error) {
+            callback (error, undefined, undefined, undefined);
+            return;
+        }
+        
+        var conditionsV = [];
+        var fields = 'username ip date emotions mainemotion';
+        var options = { limit : optionsSet.queryLimit};
+        if (optionsSet.sortByDate) {
+            options.sort = [['date', optionsSet.sortByDate]];
+        }
+        
+        if (optionsSet.onlyWithEmotions) {
+            conditionsV.push ({"mainemotion" : { "$exists" : true }});
+            conditionsV.push ({"emotions" : { "$exists" : true }});
+        }
+        
+        if (optionsSet.username) {
+            conditionsV.push ({"username" : optionsSet.username});
+        }
+        
+        if (optionsSet.returnImage) {
+            fields += ' image';
+        }
+        
+        var conditions = (conditionsV.length ? {$and : conditionsV} : {});
+        callback (false, conditions, fields, options);
+    });   
 };
 
 Images.prototype.getImages = function (options, callback) {
     var self = this;
     
-    self._checkOptions(options, function(error, optionsSet) {
+    self._generateMongoDBParameteres(options, function(error, conditions, fields, options) {
         if (error) {
             callback (error, []);
             return;
         }
-        
-        self._generateMongoDBParameteres(optionsSet, function(error, conditions, fields, options) {
-            if (error) {
-                callback (error, []);
+
+        self.imageDB.find(conditions, fields, options, function (error, images) {
+                callback(error, images);
                 return;
             }
-            
-            self.imageDB.find(conditions, fields, options, function (error, images) {
-                    callback(error, images);
-                    return;
-                }
-            );
-            
-        });
+        );
     });
 };
 
