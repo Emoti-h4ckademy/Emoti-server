@@ -630,14 +630,14 @@ describe("Controllers: images - updateImagesWithoutEmotions", function() {
     });
     
     it("Return error if the DB fails", function(done) {
-        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl);
+        var oldFind = ImageCtrl.imageDB.find.bind(ImageCtrl.imageDB);
         ImageCtrl.imageDB.find = function (conditions, fields, options, callback) {
             callback ("Error", undefined);
         };
         
         ImageCtrl.updateImagesWithoutEmotions(0, function (error, documents) {
             expect(error).toBeTruthy();
-            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl);
+            ImageCtrl.imageDB.find = oldFind.bind(ImageCtrl.imageDB);
             done();
         });
     });
