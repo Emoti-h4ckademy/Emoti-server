@@ -38,7 +38,7 @@ function Images () {
  * @returns {undefined}
  */
 Images.prototype.checkDocument = function (document, callback) {
-    var self = this;
+    var self = images;
     
     if (!document || !document._doc) {
         callback ("Invalid document", undefined); 
@@ -154,7 +154,7 @@ Images.prototype._checkUsername = function (username){
  * @returns {undefined}
  */
 Images.prototype._checkOptions = function (myOptions, callback) {
-    var self = this;
+    var self = images;
     var returnOptions = self.getNewOptions();
     
     if (typeof(myOptions) !== "object") {
@@ -189,7 +189,7 @@ Images.prototype._checkOptions = function (myOptions, callback) {
  * @returns {undefined}
  */
 Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
-    var self = this;
+    var self = images;
     if (!self._checkQueryLimit(queryLimit))
     {
         callback("Invalid queryLimit size", undefined);
@@ -224,7 +224,7 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
  * @returns {undefined}
  */
 Images.prototype._generateMongoDBParameters = function (options, callback) {
-    var self = this;
+    var self = images;
     
     self._checkOptions(options, function(error, optionsSet) {
         if (error) {
@@ -265,7 +265,7 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
  * @returns {undefined}
  */
 Images.prototype.getImages = function (options, callback) {
-    var self = this;
+    var self = images;
     
     self._generateMongoDBParameters(options, function(error, conditions, fields, options) {
         if (error) {
@@ -286,7 +286,7 @@ Images.prototype.getImages = function (options, callback) {
  * @returns {F|Object}
  */
 Images.prototype.getNewOptions = function () {
-    return Object.create(this._optionsDefault);
+    return Object.create(images._optionsDefault);
 };
 
 /**
@@ -319,7 +319,7 @@ Images.prototype._checkRequest = function (request)
  * @returns {undefined}
  */
 Images.prototype.addImage = function(req, res) {
-    var self = this;
+    var self = images;
     var validRequest = self._checkRequest(req);
     
     if (!validRequest) {
