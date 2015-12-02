@@ -274,10 +274,9 @@ Images.prototype.getImages = function (options, callback) {
         }
 
         self.imageDB.find(conditions, fields, options, function (error, images) {
-                callback(error, images);
-                return;
-            }
-        );
+            callback(error, images);
+            return;
+        });
     });
 };
 
