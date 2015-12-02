@@ -4,6 +4,9 @@
  * The exports object of the "images" module is an instance of this class.
  * Most apps will only use this one instance.
  */
+
+var timeSpan = require('timespan');
+    
 function Images () {
     this.imageDB = require('../models/image');
     this.oxfordLib = require('../lib/oxford');
@@ -11,6 +14,7 @@ function Images () {
     this._optionsDefault = {
         queryLimit :          0,
         queryUsername :       false,
+        queryStartDate :      false,
         filterHasEmotions :   true,
         sortDate :            false,
         returnImage :         false
@@ -19,6 +23,7 @@ function Images () {
     this._optionsFunctions = {
         queryLimit :          this._checkQueryLimit,
         queryUsername :       this._checkUsername,
+        queryStartDate :      this._checkDate,
         filterHasEmotions :   this._checkOnlyWithEmotions,
         sortDate :            this._checkSortbyDate,
         returnImage :         this._checkReturnImage
@@ -145,6 +150,15 @@ Images.prototype._checkUsername = function (username){
 };
 
 /**
+ * Checks whether the paramter for a Date is valid
+ * @param {type} date
+ * @returns {Boolean}
+ */
+Images.prototype._checkDate = function (date){
+    return (date === false) || (date instanceof Date);  
+};
+
+/**
  * Checks the options parameter for a Images query
  * @param {type} myOptions Options for the query. If an option is setup more than once,
  * it will take the last value
@@ -246,6 +260,10 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
         
         if (optionsSet.queryUsername) {
             conditionsV.push ({"username" : optionsSet.queryUsername});
+        }
+        
+        if (optionsSet.queryStartDate) {
+            conditionsV.push ({"date" : {"$gt" : (optionsSet.queryStartDate)}});
         }
         
         if (optionsSet.returnImage) {

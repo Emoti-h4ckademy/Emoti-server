@@ -1,5 +1,5 @@
 /* global expect */ 
-console.log = function() {}; //Disable logs
+//console.log = function() {}; //Disable logs
 
 describe("Controllers: images - checkRequest", function() {
     
@@ -423,6 +423,33 @@ describe("Controllers: images - _checkUsername", function() {
     
 });
 
+describe("Controllers: images - _checkDate", function() {
+    var ImageCtrl = require('../../controllers/images');
+
+    it("True with a Date", function(){
+        expect(ImageCtrl._checkDate(new Date())).toBeTruthy();
+    });
+    
+    it("True with 'false'", function(){
+        expect(ImageCtrl._checkDate(false)).toBeTruthy();
+    });
+    
+    it("False with 'true'", function(){
+        expect(ImageCtrl._checkDate(true)).toBeFalsy();
+    });
+    
+    it("False with a String", function(){
+        expect(ImageCtrl._checkDate("01/01/2015")).toBeFalsy();
+    });
+    
+    it("False with a Number", function(){
+        expect(ImageCtrl._checkDate(0)).toBeFalsy();
+    });
+    
+
+    
+});
+
 describe("Controllers: images - _checkOptions", function() {
     var ImageCtrl = require('../../controllers/images');
     
@@ -430,6 +457,7 @@ describe("Controllers: images - _checkOptions", function() {
     var optionImplementedTests = {
         queryLimit :          true,
         queryUsername :       true,
+        queryStartDate :      true,
         filterHasEmotions :   true,
         sortDate :            true,
         returnImage :         true
@@ -549,6 +577,24 @@ describe("Controllers: images - _checkOptions", function() {
         });
     });
     
+    it ("OK with valid startDate", function (done) {
+        var myDate = new Date();
+        myDate.setMonth(4,20);
+        myDate.setYear(2020);
+        ImageCtrl._checkOptions({queryStartDate : myDate}, function (error, optionJson) {
+            expect(error).toBeFalsy();
+            expect(optionJson.queryStartDate).toEqual(myDate);
+            done();
+        });
+    });
+    
+    it ("KO with wrong startDate", function (done) {
+        ImageCtrl._checkOptions("I'm too dumb to use a date", function (error, optionJson) {
+            expect(error).toBeTruthy();
+            done();
+        });
+    });
+    
     it ("Check default parameter in a half completed options", function (done) {
         ImageCtrl._checkOptions({queryUsername : "My username", queryLimit: 30}, function (error, optionJson) {
             expect(error).toBeFalsy();
@@ -557,6 +603,7 @@ describe("Controllers: images - _checkOptions", function() {
             expect(optionJson.sortDate).toEqual(ImageCtrl._optionsDefault.sortDate);
             expect(optionJson.returnImage).toEqual(ImageCtrl._optionsDefault.returnImage);
             expect(optionJson.queryUsername).toEqual("My username");
+            expect(optionJson.queryStartDate).toEqual(ImageCtrl._optionsDefault.queryStartDate);
             done();
         });
     });
@@ -711,6 +758,23 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     
     beforeEach(function(){
         myOptions = ImageCtrl.getNewOptions();
+    });
+    
+    var optionImplementedTests = {
+        queryLimit :          true,
+        queryUsername :       true,
+        queryStartDate :      false,
+        filterHasEmotions :   true,
+        sortDate :            true,
+        returnImage :         true
+    };
+    
+    it ("There is no new options added without tests implemented here", function () {     
+        for (var key in ImageCtrl._optionsDefault) {
+            if (!optionImplementedTests[key]) {
+                fail();
+            }
+        }
     });
     
     it ("Error with undefined", function (done) {
