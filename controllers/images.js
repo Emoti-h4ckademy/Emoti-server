@@ -4,8 +4,6 @@
  * The exports object of the "images" module is an instance of this class.
  * Most apps will only use this one instance.
  */
-
-var timeSpan = require('timespan');
     
 function Images () {
     this.imageDB = require('../models/image');
