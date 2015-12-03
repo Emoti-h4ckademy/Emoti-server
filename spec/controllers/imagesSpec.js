@@ -447,11 +447,65 @@ describe("Controllers: images - _checkDate", function() {
     });
 });
 
+describe("Controllers: images - _checkQueryEmotion", function() {
+    var ImageCtrl = require('../../controllers/images');
+        
+    it("True with 'false'", function(){
+        expect(ImageCtrl._checkQueryEmotion(false)).toBeTruthy();
+    });
+    
+    it("True with 'anger'", function(){
+        expect(ImageCtrl._checkQueryEmotion('anger')).toBeTruthy();
+    });
+    
+    it("True with 'digust'", function(){
+        expect(ImageCtrl._checkQueryEmotion('digust')).toBeTruthy();
+    });
+    
+    it("True with 'fear'", function(){
+        expect(ImageCtrl._checkQueryEmotion('fear')).toBeTruthy();
+    });
+    
+    it("True with 'happiness'", function(){
+        expect(ImageCtrl._checkQueryEmotion('happiness')).toBeTruthy();
+    });
+    
+    it("True with 'neutral'", function(){
+        expect(ImageCtrl._checkQueryEmotion('neutral')).toBeTruthy();
+    });
+    
+    it("True with 'sadness'", function(){
+        expect(ImageCtrl._checkQueryEmotion('sadness')).toBeTruthy();
+    });
+    
+    it("True with 'surprise'", function(){
+        expect(ImageCtrl._checkQueryEmotion('surprise')).toBeTruthy();
+    });
+    
+    it("False with 'true'", function(){
+        expect(ImageCtrl._checkQueryEmotion(true)).toBeFalsy();
+    });
+    
+    it("False with other string", function(){
+        expect(ImageCtrl._checkQueryEmotion("My emotion")).toBeFalsy();
+    });
+    
+    it("False with undefined", function(){
+        expect(ImageCtrl._checkQueryEmotion(undefined)).toBeFalsy();
+    });
+    
+    it("False with int", function(){
+        expect(ImageCtrl._checkQueryEmotion(0)).toBeFalsy();
+    });
+    
+});
+
 describe("Controllers: images - _checkOptions", function() {
     var ImageCtrl = require('../../controllers/images');
     
     //If you add a key here you add some tests bellow to check your new option
     var optionImplementedTests = {
+        queryEmotion :        true,
         queryLimit :          true,
         queryUsername :       true,
         queryStartDate :      true,
@@ -588,6 +642,21 @@ describe("Controllers: images - _checkOptions", function() {
     
     it ("KO with wrong startDate", function (done) {
         ImageCtrl._checkOptions("I'm too dumb to use a date", function (error, optionJson) {
+            expect(error).toBeTruthy();
+            done();
+        });
+    });
+    
+    it ("Ok with a valid queryEmotion", function (done) {
+        ImageCtrl._checkOptions({queryEmotion : "neutral"}, function (error, optionJson) {
+            expect(error).toBeFalsy();
+            expect(optionJson.queryEmotion).toEqual("neutral");
+            done();
+        });
+    });
+    
+    it ("Ok with a wrong queryEmotion", function (done) {
+        ImageCtrl._checkOptions({queryEmotion : true}, function (error, optionJson) {
             expect(error).toBeTruthy();
             done();
         });
@@ -759,6 +828,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
     });
     
     var optionImplementedTests = {
+        queryEmotion :        true,
         queryLimit :          true,
         queryUsername :       true,
         queryStartDate :      true,
@@ -984,6 +1054,37 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
                 }      
             }
             expect(foundEndDate).toEqual(false);
+            done();
+        });
+    });
+    
+    it ("Should set queryEmotion in conditions", function (done) {
+        ImageCtrl._generateMongoDBParameters({queryEmotion : "neutral"}, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundEmotion = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].mainemotion) {
+                    foundEmotion = conditions.$and[andCondition].mainemotion;
+                    break;
+                }
+            }
+            expect(foundEmotion).toEqual("neutral");
+            done();
+        });
+    });
+    
+    it ("Should unset queryEmotion in conditions", function (done) {
+        var myOptions = {queryEmotion : false, filterHasEmotions : false};
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundEmotion = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].mainemotion) {
+                    foundEmotion = conditions.$and[andCondition].mainemotion;
+                    break;
+                }
+            }
+            expect(foundEmotion).toEqual(false);
             done();
         });
     });

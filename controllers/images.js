@@ -10,6 +10,7 @@ function Images () {
     this.oxfordLib = require('../lib/oxford');
     
     this._optionsDefault = {
+        queryEmotion :        false,
         queryLimit :          0,
         queryUsername :       false,
         queryStartDate :      false,
@@ -20,6 +21,7 @@ function Images () {
     };
     
     this._optionsFunctions = {
+        queryEmotion :        this._checkQueryEmotion,
         queryLimit :          this._checkQueryLimit,
         queryUsername :       this._checkUsername,
         queryStartDate :      this._checkDate,
@@ -159,6 +161,27 @@ Images.prototype._checkDate = function (date){
 };
 
 /**
+ * Checks whether the paramter for a emotion is valid
+ * @param {type} emotion
+ * @returns {Boolean}
+ */
+Images.prototype._checkQueryEmotion = function (emotion){
+    return (emotion === false) ||
+           (
+            typeof(emotion) === "string" &&
+            [   'anger',
+                'contempt',
+                'digust',
+                'fear',
+                'happiness',
+                'neutral',
+                'sadness',
+                'surprise'
+            ].indexOf(emotion.toLowerCase()) !== -1
+            );
+};
+
+/**
  * Checks the options parameter for a Images query
  * @param {type} myOptions Options for the query. If an option is setup more than once,
  * it will take the last value
@@ -230,6 +253,11 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
     );
 };
 
+function generateMongoQueryEmotion (option, dbParameters) {
+    if (option) {
+        dbParameters.conditionsAnd.push ({"mainemotion" : option});
+    }
+}
 
 function generateMongoQueryLimit (option, dbParameters) {
     dbParameters.options.limit = option;
@@ -273,6 +301,7 @@ function generateMongoReturnImage (option, dbParameters) {
 }
 
 var mongoFunctions = {
+    queryEmotion :      generateMongoQueryEmotion,
     queryLimit :          generateMongoQueryLimit,
     queryUsername :       generateMongoQueryUsername,
     queryStartDate :      generateMongoQueryStartDate,
