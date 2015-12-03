@@ -284,7 +284,6 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
  */
 Images.prototype.getImages = function (options, callback) {
     var self = images;
-    
     self._generateMongoDBParameters(options, function(error, conditions, fields, options) {
         if (error) {
             callback (error, []);
@@ -355,7 +354,7 @@ Images.prototype.addImage = function(req, res) {
             console.log ("addImage: ERROR: " + error);
             
             //Failure in connection with Oxford API: Setup to store without emotions
-            store = new Image({
+            store = new self.imageDB({
                 username:    req.body.username,
                 ip:          req.ip,
                 date:        new Date(),
@@ -384,15 +383,15 @@ Images.prototype.addImage = function(req, res) {
                 emotions:    emotions,
                 mainemotion: mainEmotion
             });
-
-            store.save(function (error, store) {
-                if (error) {
-                    res.status(500).send(error.message);
-                } else {
-                    res.status(200).send("Image stored correctly");
-                }
-            });
         }
+        
+        store.save(function (error, store) {
+            if (error) {
+                res.status(500).send(error.message);
+            } else {
+                res.status(200).send("Image stored correctly");
+            }
+        });
     });
 
 };
