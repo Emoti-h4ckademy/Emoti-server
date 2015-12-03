@@ -230,6 +230,58 @@ Images.prototype.updateImagesWithoutEmotions = function (queryLimit, callback) {
     );
 };
 
+
+function generateMongoQueryLimit (option, dbParameters) {
+    dbParameters.options.limit = option;
+}
+
+function generateMongoQueryUsername (option, dbParameters) {
+    if (option) {
+        dbParameters.conditionsAnd.push ({"username" : option});
+    }
+}
+
+function generateMongoQueryStartDate (option,dbParameters) {
+    if (option) {
+        dbParameters.conditionsAnd.push ({"date" : {"$gt" : option}});
+    }
+}
+
+function generateMongoQueryEndDate (option, dbParameters) {
+    if (option) {
+        dbParameters.conditionsAnd.push ({"date" : {"$lt" : option}});
+    }
+}
+
+function generateMongoFilterHasEmotions (option, dbParameters) {
+    if (option) {
+        dbParameters.conditionsAnd.push ({"mainemotion" : { "$exists" : true }});
+        dbParameters.conditionsAnd.push ({"emotions" : { "$exists" : true }});
+    }
+}
+
+function generateMongoSortDate (option, dbParameters) {
+    if (option) {
+        dbParameters.options.sort = [['date', option]];
+    }
+}
+
+function generateMongoReturnImage (option, dbParameters) {
+    if (option) {
+        dbParameters.fields += ' image';
+    }
+}
+
+var mongoFunctions = {
+    queryLimit :          generateMongoQueryLimit,
+    queryUsername :       generateMongoQueryUsername,
+    queryStartDate :      generateMongoQueryStartDate,
+    queryEndDate :        generateMongoQueryEndDate,
+    filterHasEmotions :   generateMongoFilterHasEmotions,
+    sortDate :            generateMongoSortDate,
+    returnImage :         generateMongoReturnImage
+};
+
 /**
  * Generate the parameter for the DB function find
  * @param {type} options - Options Object (structure should be as _optionsDefault).
@@ -242,40 +294,27 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
     
     self._checkOptions(options, function(error, optionsSet) {
         if (error) {
-            callback (error, undefined, undefined, undefined);
+            callback (error);
             return;
         }
         
-        var conditionsV = [];
-        var fields = 'username ip date emotions mainemotion';
-        var options = { limit : optionsSet.queryLimit};
-        if (optionsSet.sortDate) {
-            options.sort = [['date', optionsSet.sortDate]];
+        var dbParameters = {
+            conditionsAnd : [],
+            fields : 'username ip date emotions mainemotion',
+            options : {}
+        };
+        
+        for (var key in mongoFunctions) {
+            if (!mongoFunctions[key]) {
+                callback ("Invalid key: " + key);
+                return;
+            }
+
+            mongoFunctions[key](optionsSet[key], dbParameters);
         }
         
-        if (optionsSet.filterHasEmotions) {
-            conditionsV.push ({"mainemotion" : { "$exists" : true }});
-            conditionsV.push ({"emotions" : { "$exists" : true }});
-        }
-        
-        if (optionsSet.queryUsername) {
-            conditionsV.push ({"username" : optionsSet.queryUsername});
-        }
-        
-        if (optionsSet.queryStartDate) {
-            conditionsV.push ({"date" : {"$gt" : (optionsSet.queryStartDate)}});
-        }
-        
-        if (optionsSet.queryEndDate) {
-            conditionsV.push ({"date" : {"$lt" : (optionsSet.queryEndDate)}});
-        }
-        
-        if (optionsSet.returnImage) {
-            fields += ' image';
-        }
-        
-        var conditions = (conditionsV.length ? {$and : conditionsV} : {});
-        callback (false, conditions, fields, options);
+        var conditions = (dbParameters.conditionsAnd.length ? {$and : dbParameters.conditionsAnd} : {});
+        callback (false, conditions, dbParameters.fields, dbParameters.options);
     });   
 };
 
