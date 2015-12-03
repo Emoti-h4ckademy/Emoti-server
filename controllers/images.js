@@ -13,6 +13,7 @@ function Images () {
         queryLimit :          0,
         queryUsername :       false,
         queryStartDate :      false,
+        queryEndDate :        false,
         filterHasEmotions :   true,
         sortDate :            false,
         returnImage :         false
@@ -22,6 +23,7 @@ function Images () {
         queryLimit :          this._checkQueryLimit,
         queryUsername :       this._checkUsername,
         queryStartDate :      this._checkDate,
+        queryEndDate :        this._checkDate,
         filterHasEmotions :   this._checkOnlyWithEmotions,
         sortDate :            this._checkSortbyDate,
         returnImage :         this._checkReturnImage
@@ -262,6 +264,10 @@ Images.prototype._generateMongoDBParameters = function (options, callback) {
         
         if (optionsSet.queryStartDate) {
             conditionsV.push ({"date" : {"$gt" : (optionsSet.queryStartDate)}});
+        }
+        
+        if (optionsSet.queryEndDate) {
+            conditionsV.push ({"date" : {"$lt" : (optionsSet.queryEndDate)}});
         }
         
         if (optionsSet.returnImage) {

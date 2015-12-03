@@ -455,6 +455,7 @@ describe("Controllers: images - _checkOptions", function() {
         queryLimit :          true,
         queryUsername :       true,
         queryStartDate :      true,
+        queryEndDate :        true,
         filterHasEmotions :   true,
         sortDate :            true,
         returnImage :         true
@@ -761,6 +762,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         queryLimit :          true,
         queryUsername :       true,
         queryStartDate :      true,
+        queryEndDate :        true,
         filterHasEmotions :   true,
         sortDate :            true,
         returnImage :         true
@@ -934,6 +936,57 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
             done();
         });
     });
+    
+    it ("Should unset queryStartDate in conditions", function (done) {
+        myOptions.queryStartDate = false;
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundStartDate = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].date && conditions.$and[andCondition].date['$gt']) {
+                    foundStartDate = conditions.$and[andCondition].date;
+                    break;
+                }      
+            }
+            expect(foundStartDate).toEqual(false);
+            done();
+        });
+    });
+    
+    it ("Should set queryEndDate in conditions", function (done) {
+        var myDate = new Date();
+        myDate.setMonth(4,20);
+        myDate.setYear(2020);
+        myOptions.queryEndDate = myDate;
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundEndDate = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].date && conditions.$and[andCondition].date['$lt']) {
+                    foundEndDate = conditions.$and[andCondition].date;
+                    break;
+                }      
+            }
+            expect(foundEndDate).toEqual({"$lt" : myDate});
+            done();
+        });
+    });
+    
+    it ("Should unset queryEndDate in conditions", function (done) {
+        myOptions.queryEndDate = false;
+        ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
+            expect(error).toBeFalsy();
+            var foundEndDate = false;
+            for (var andCondition in conditions.$and) {
+                if (conditions.$and[andCondition].date && conditions.$and[andCondition].date['$lt']) {
+                    foundEndDate = conditions.$and[andCondition].date;
+                    break;
+                }      
+            }
+            expect(foundEndDate).toEqual(false);
+            done();
+        });
+    });
    
     it ("Default", function (done){
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
@@ -957,7 +1010,8 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         });
     });
     
-    it ("Should set username and filterHasEmotions and queryStartDate (conditions field)", function () {
+    it ("Should set username and filterHasEmotions and queryStartDate\
+        and queryEndDate (conditions field)", function () {
         myOptions.queryUsername = "USERNAMERANDOM";
         myOptions.filterHasEmotions = false;
         
@@ -965,6 +1019,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
         myDate.setMonth(4,20);
         myDate.setYear(2020);
         myOptions.queryStartDate = myDate;
+        myOptions.queryEndDate = myDate;
         
         ImageCtrl._generateMongoDBParameters(myOptions, function (error, conditions, fields, options) {
             expect(error).toBeFalsy();
@@ -973,6 +1028,7 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
             var foundMainEmotion = false;
             var foundUsername = false;
             var foundStartDate = false;
+            var foundEndDate = false;
             for (var andCondition in conditions.$and) {
                 if (conditions.$and[andCondition].username) {
                     foundUsername = conditions.$and[andCondition].username;
@@ -986,12 +1042,16 @@ describe("Controllers: images - _generateMongoDBParameters", function() {
                 if (conditions.$and[andCondition].date && conditions.$and[andCondition].date['$gt']) {
                     foundStartDate = conditions.$and[andCondition].date;
                 }
+                if (conditions.$and[andCondition].date && conditions.$and[andCondition].date['$lt']) {
+                    foundEndDate = conditions.$and[andCondition].date;
+                }
             }
             
             expect(foundMainEmotion).toBeFalsy();
             expect(foundEmotions).toBeFalsy();
             expect(foundUsername).toEqual("USERNAMERANDOM");
             expect(foundStartDate).toEqual({"$gt" : myDate});
+            expect(foundEndDate).toEqual({"$lt" : myDate});
         });
     });    
 });
